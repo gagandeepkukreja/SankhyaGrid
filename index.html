@@ -294,10 +294,11 @@ function Sparkline({ data, color = "#00e5a0", w = 80, h = 24 }) {
 }
 
 // ─── Mini Bar Chart ──────────────────────────────────────────────────────
-function MiniBarChart({ data, labels, color = "#007aff", w = 240, h = 90 }) {
+function MiniBarChart({ data, labels, color = "#2a7d8c", w = 240, h = 90 }) {
   const mx = Math.max(...data);
   const bw = (w / data.length) * 0.6;
   const gap = (w / data.length) * 0.4;
+  const t = S.t;
   return (
     <svg width={w} height={h + 20} style={{ display: "block" }}>
       {data.map((v, i) => {
@@ -305,9 +306,9 @@ function MiniBarChart({ data, labels, color = "#007aff", w = 240, h = 90 }) {
         const x = i * (bw + gap) + gap / 2;
         return (
           <g key={i}>
-            <rect x={x} y={h - bh} width={bw} height={bh} rx={2} fill={v === mx ? "#ff3b5c" : color} opacity={0.85} />
-            <text x={x + bw / 2} y={h + 14} textAnchor="middle" fill="#5a6e83" fontSize="8" fontFamily="inherit">{labels?.[i] || i}</text>
-            <text x={x + bw / 2} y={h - bh - 4} textAnchor="middle" fill="#c8d6e5" fontSize="8" fontFamily="inherit">{v}</text>
+            <rect x={x} y={h - bh} width={bw} height={bh} rx={3} fill={v === mx ? t.red : color} opacity={0.85} />
+            <text x={x + bw / 2} y={h + 14} textAnchor="middle" fill={t.textDim} fontSize="9" fontFamily="inherit">{labels?.[i] || i}</text>
+            <text x={x + bw / 2} y={h - bh - 4} textAnchor="middle" fill={t.textBright} fontSize="9" fontFamily="inherit" fontWeight="600">{v}</text>
           </g>
         );
       })}
@@ -881,17 +882,17 @@ function Monitoring({ data, feederHistory, mob }) {
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: mob ? 8 : 10 }}>
         {data.transformers.map(t => (
           <div key={t.id} style={S.card}>
-            <div style={S.glow(t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#00e5a0")} />
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#f0f4f8" }}>{t.id}</span>
+            <div style={S.glow(t.health === "critical" ? S.t.red : t.health === "warning" ? S.t.yellow : S.t.green)} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5, paddingLeft: 8 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: S.t.textBright }}>{t.id}</span>
               <div style={{ display: "flex", gap: 3, alignItems: "center" }}><DataHealthBadge status={t.dataHealth} /><span style={S.badge(t.health)}>{t.health}</span></div>
             </div>
-            <div style={{ fontSize: 8, color: "#5a6e83", marginBottom: 5 }}>{t.name}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, fontSize: 10 }}>
-              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>Load </span><span style={{ fontWeight: 700 }}>{t.loadKva} kVA</span></div>
-              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>% </span><span style={{ fontWeight: 700, color: t.loadPct > 95 ? "#ff3b5c" : t.loadPct > 80 ? "#ffb800" : "#00e5a0" }}>{t.loadPct}%</span></div>
-              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>V </span><span>{t.voltage}</span></div>
-              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>Temp </span><span style={{ color: t.temperature > 70 ? "#ff3b5c" : "#c8d6e5" }}>{t.temperature}C</span></div>
+            <div style={{ fontSize: 8, color: S.t.textDim, marginBottom: 5, paddingLeft: 8 }}>{t.name}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, fontSize: 10, paddingLeft: 8 }}>
+              <div><span style={{ fontSize: 8, color: S.t.textDim }}>Load </span><span style={{ fontWeight: 700 }}>{t.loadKva} kVA</span></div>
+              <div><span style={{ fontSize: 8, color: S.t.textDim }}>% </span><span style={{ fontWeight: 700, color: t.loadPct > 95 ? S.t.red : t.loadPct > 80 ? S.t.yellow : S.t.green }}>{t.loadPct}%</span></div>
+              <div><span style={{ fontSize: 8, color: S.t.textDim }}>V </span><span>{t.voltage}</span></div>
+              <div><span style={{ fontSize: 8, color: S.t.textDim }}>Temp </span><span style={{ color: t.temperature > 70 ? S.t.red : S.t.text }}>{t.temperature}°C</span></div>
             </div>
             <div style={{ marginTop: 5 }}><div style={S.bar}><div style={S.barFill(t.loadPct)} /></div></div>
           </div>
@@ -906,39 +907,40 @@ function AlertsView({ alerts, mob }) {
   const [filter, setFilter] = useState("all");
   const filtered = filter === "all" ? alerts : alerts.filter(a => a.severity === filter);
   const counts = { critical: alerts.filter(a => a.severity === "critical").length, warning: alerts.filter(a => a.severity === "warning").length, insight: alerts.filter(a => a.severity === "insight").length };
+  const t = S.t;
 
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: mob ? 8 : 10, marginBottom: 14 }}>
         {[
-          { key: "all", label: "Total", count: alerts.length, color: "#c8d6e5" },
-          { key: "critical", label: "Critical", count: counts.critical, color: "#ff3b5c" },
-          { key: "warning", label: "Warnings", count: counts.warning, color: "#ffb800" },
-          { key: "insight", label: "AI Insights", count: counts.insight, color: "#007aff" },
+          { key: "all", label: "Total", count: alerts.length, color: t.textBright },
+          { key: "critical", label: "Critical", count: counts.critical, color: t.red },
+          { key: "warning", label: "Warnings", count: counts.warning, color: t.yellow },
+          { key: "insight", label: "AI Insights", count: counts.insight, color: t.blue },
         ].map(k => (
-          <div key={k.key} style={{ ...S.card, cursor: "pointer", border: filter === k.key ? `1px solid ${k.color}40` : "1px solid #1a2235" }} onClick={() => setFilter(k.key)}>
-            <div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={{ ...S.bigNum, color: k.color }}>{k.count}</div>
+          <div key={k.key} style={{ ...S.card, cursor: "pointer", border: filter === k.key ? `1px solid ${k.color}40` : `1px solid ${t.border}` }} onClick={() => setFilter(k.key)}>
+            <div style={S.glow(k.color)} /><div style={{ ...S.label, paddingLeft: 8 }}>{k.label}</div><div style={{ ...S.bigNum, color: k.color, paddingLeft: 8 }}>{k.count}</div>
           </div>
         ))}
       </div>
       <div style={S.card}>
-        <div style={S.glow("#ff3b5c")} />
-        <div style={S.label}>Alert Feed — {filter.toUpperCase()}</div>
+        <div style={S.glow(t.red)} />
+        <div style={{ ...S.label, paddingLeft: 8 }}>Alert Feed — {filter.toUpperCase()}</div>
         <div style={{ maxHeight: 440, overflowY: "auto" }}>
           {filtered.map(a => (
             <div key={a.id} style={S.alertRow(a.severity)}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: { critical: "#ff3b5c", warning: "#ffb800", insight: "#007aff" }[a.severity], marginTop: 4, flexShrink: 0 }} />
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: { critical: t.red, warning: t.yellow, insight: t.blue }[a.severity], marginTop: 4, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: "#f0f4f8", fontWeight: a.severity === "insight" ? 600 : 500 }}>
-                  {a.severity === "insight" && <span style={{ color: "#007aff", marginRight: 4, fontSize: 9 }}>AI</span>}
-                  {a.type === "theft" && <span style={{ color: "#ff3b5c", marginRight: 4, fontSize: 9 }}>THEFT</span>}
-                  {a.type === "ev_load" && <span style={{ color: "#007aff", marginRight: 4, fontSize: 9 }}>EV</span>}
-                  {a.type === "weather" && <span style={{ color: "#ffb800", marginRight: 4, fontSize: 9 }}>WX</span>}
+                <div style={{ fontSize: 11, color: t.textBright, fontWeight: a.severity === "insight" ? 600 : 500 }}>
+                  {a.severity === "insight" && <span style={{ color: t.blue, marginRight: 4, fontSize: 9 }}>AI</span>}
+                  {a.type === "theft" && <span style={{ color: t.red, marginRight: 4, fontSize: 9 }}>THEFT</span>}
+                  {a.type === "ev_load" && <span style={{ color: t.blue, marginRight: 4, fontSize: 9 }}>EV</span>}
+                  {a.type === "weather" && <span style={{ color: t.yellow, marginRight: 4, fontSize: 9 }}>WX</span>}
                   {a.message}
                 </div>
-                <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 2 }}>{a.asset} | {a.time.toLocaleTimeString()}</div>
+                <div style={{ fontSize: 8, color: t.textDim, marginTop: 2 }}>{a.asset} | {a.time.toLocaleTimeString()}</div>
               </div>
-              {a.severity !== "insight" && <button style={{ background: "rgba(255,255,255,0.04)", border: "1px solid #1a2235", borderRadius: 3, color: "#5a6e83", fontSize: 8, padding: "3px 7px", cursor: "pointer", fontFamily: "inherit" }}>ACK</button>}
+              {a.severity !== "insight" && <button style={{ background: `${t.blue}08`, border: `1px solid ${t.border}`, borderRadius: 4, color: t.textDim, fontSize: 9, padding: "4px 8px", cursor: "pointer", fontFamily: "inherit" }}>ACK</button>}
             </div>
           ))}
         </div>
@@ -955,67 +957,85 @@ function PredictiveView({ data, mob }) {
   const solarForecast = [80, 30, 5, 0, 0, 0];
   const tempForecast = [38, 36, 34, 33, 32, 31];
   const peakT = data.transformers.reduce((a, b) => a.loadPct > b.loadPct ? a : b);
+  const t = S.t;
+  const totalEvPeak = Math.max(...evForecast);
+  const totalLoadPeak = Math.max(...loadForecast);
+  const atRiskDTs = data.transformers.filter(tr => tr.loadPct > 75).length;
+  const solarDropTime = "7:00 PM";
 
   return (
     <div>
-      <div style={{ ...S.card, borderColor: "#ffb80040", marginBottom: 12 }}>
-        <div style={S.glow("#ffb800")} />
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      {/* KPI Strip */}
+      <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: 14 }}>
+        {[
+          { label: "Peak Load (Predicted)", value: totalLoadPeak, unit: "kW", color: t.red },
+          { label: "Peak EV Load", value: totalEvPeak, unit: "kW", color: t.blue },
+          { label: "DTs at Risk", value: atRiskDTs, unit: "", color: t.red },
+          { label: "Solar Drops At", value: solarDropTime, unit: "", color: t.yellow },
+        ].map((k, i) => (
+          <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={S.bigNum}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
+        ))}
+      </div>
+
+      {/* Weather Alert */}
+      <div style={{ ...S.card, borderColor: `${t.yellow}40`, marginBottom: 12 }}>
+        <div style={S.glow(t.yellow)} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, paddingLeft: 8 }}>
           <div style={{ fontSize: 24 }}>🌡️</div>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#ffb800" }}>Weather Alert: Extreme Heat Advisory</div>
-            <div style={{ fontSize: 9, color: "#c8d6e5", marginTop: 2 }}>Forecast 42C peak. Transformer cooling reduced ~15%. Pre-position load shedding.</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: t.yellow }}>Weather Alert: Extreme Heat Advisory</div>
+            <div style={{ fontSize: 9, color: t.text, marginTop: 2 }}>Forecast 42°C peak. Transformer cooling reduced ~15%. Pre-position load shedding.</div>
           </div>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: 12 }}>
         <div style={S.card}>
-          <div style={S.glow("#007aff")} /><div style={S.label}>EV Load Forecast</div>
-          <MiniBarChart data={evForecast} labels={hours} color="#007aff" />
-          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+          <div style={S.glow(t.blue)} /><div style={{ ...S.label, paddingLeft: 8 }}>EV Load Forecast</div>
+          <div style={{ paddingLeft: 8 }}><MiniBarChart data={evForecast} labels={hours} color={t.blue} /></div>
+          <div style={{ marginTop: 8, fontSize: 9, color: t.textDim, padding: "6px 8px", background: t.bgInner, borderRadius: 4 }}>
             AI: Shift 85 kW from 9 PM peak to post-11 PM. Reduces transformer stress ~18%.
           </div>
         </div>
         <div style={S.card}>
-          <div style={S.glow("#00e5a0")} /><div style={S.label}>Total Load Forecast</div>
-          <MiniBarChart data={loadForecast} labels={hours} color="#00e5a0" />
-          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+          <div style={S.glow(t.green)} /><div style={{ ...S.label, paddingLeft: 8 }}>Total Load Forecast</div>
+          <div style={{ paddingLeft: 8 }}><MiniBarChart data={loadForecast} labels={hours} color={t.green} /></div>
+          <div style={{ marginTop: 8, fontSize: 9, color: t.textDim, padding: "6px 8px", background: t.bgInner, borderRadius: 4 }}>
             AI: Peak 780 kW at 9 PM. {peakT.name} at risk. Consider switching.
           </div>
         </div>
         <div style={S.card}>
-          <div style={S.glow("#ffb800")} /><div style={S.label}>Solar Generation Forecast</div>
-          <MiniBarChart data={solarForecast} labels={hours} color="#ffb800" />
-          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+          <div style={S.glow(t.yellow)} /><div style={{ ...S.label, paddingLeft: 8 }}>Solar Generation Forecast</div>
+          <div style={{ paddingLeft: 8 }}><MiniBarChart data={solarForecast} labels={hours} color={t.yellow} /></div>
+          <div style={{ marginTop: 8, fontSize: 9, color: t.textDim, padding: "6px 8px", background: t.bgInner, borderRadius: 4 }}>
             AI: Solar drops at 7 PM. Net demand spikes. Battery/DG recommended.
           </div>
         </div>
         <div style={S.card}>
-          <div style={S.glow("#ff3b5c")} /><div style={S.label}>Temperature vs Transformer Risk</div>
-          <MiniBarChart data={tempForecast} labels={hours} color="#ff3b5c" />
-          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
-            AI: 3 transformers at thermal risk 6-8 PM when ambient exceeds 36C.
+          <div style={S.glow(t.red)} /><div style={{ ...S.label, paddingLeft: 8 }}>Temperature vs Transformer Risk</div>
+          <div style={{ paddingLeft: 8 }}><MiniBarChart data={tempForecast} labels={hours} color={t.red} /></div>
+          <div style={{ marginTop: 8, fontSize: 9, color: t.textDim, padding: "6px 8px", background: t.bgInner, borderRadius: 4 }}>
+            AI: 3 transformers at thermal risk 6-8 PM when ambient exceeds 36°C.
           </div>
         </div>
       </div>
 
       <div style={{ ...S.card, marginTop: 12 }}>
-        <div style={S.glow("#ff3b5c")} />
-        <div style={S.label}>Transformer Overload Risk — Next 6h</div>
+        <div style={S.glow(t.red)} />
+        <div style={{ ...S.label, paddingLeft: 8 }}>Transformer Overload Risk — Next 6h</div>
         <table style={S.table}>
           <thead><tr><th style={S.th}>Transformer</th><th style={S.th}>Now</th><th style={S.th}>Predicted</th><th style={S.th}>Risk</th><th style={S.th}>Action</th></tr></thead>
           <tbody>
-            {data.transformers.sort((a, b) => b.loadPct - a.loadPct).slice(0, 5).map(t => {
-              const pred = Math.round(t.loadPct * rand(1.05, 1.35));
+            {data.transformers.sort((a, b) => b.loadPct - a.loadPct).slice(0, 5).map(tr => {
+              const pred = Math.round(tr.loadPct * rand(1.05, 1.35));
               const risk = pred > 100 ? "critical" : pred > 85 ? "warning" : "healthy";
               return (
-                <tr key={t.id}>
-                  <td style={{ ...S.td, fontWeight: 600, color: "#f0f4f8" }}>{t.name}</td>
-                  <td style={S.td}>{t.loadPct}%</td>
-                  <td style={{ ...S.td, fontWeight: 700, color: risk === "critical" ? "#ff3b5c" : risk === "warning" ? "#ffb800" : "#00e5a0" }}>{pred}%</td>
+                <tr key={tr.id}>
+                  <td style={{ ...S.td, fontWeight: 600, color: t.textBright }}>{tr.name}</td>
+                  <td style={S.td}>{tr.loadPct}%</td>
+                  <td style={{ ...S.td, fontWeight: 700, color: risk === "critical" ? t.red : risk === "warning" ? t.yellow : t.green }}>{pred}%</td>
                   <td style={S.td}><span style={S.badge(risk)}>{risk}</span></td>
-                  <td style={S.td}>{risk !== "healthy" && <button style={{ background: "rgba(0,122,255,0.1)", border: "1px solid #007aff30", borderRadius: 3, color: "#007aff", fontSize: 8, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>SHIFT LOAD</button>}</td>
+                  <td style={S.td}>{risk !== "healthy" && <button style={{ background: `${t.blue}10`, border: `1px solid ${t.blue}30`, borderRadius: 4, color: t.blue, fontSize: 9, padding: "4px 10px", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>SHIFT LOAD</button>}</td>
                 </tr>
               );
             })}
@@ -1024,20 +1044,20 @@ function PredictiveView({ data, mob }) {
       </div>
 
       <div style={{ ...S.card, marginTop: 12 }}>
-        <div style={S.glow("#007aff")} />
-        <div style={S.label}>Historical EV Pattern (7-Day Avg)</div>
-        <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 70, padding: "8px 0" }}>
+        <div style={S.glow(t.blue)} />
+        <div style={{ ...S.label, paddingLeft: 8 }}>Historical EV Pattern (7-Day Avg)</div>
+        <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 70, padding: "8px 0 8px 8px" }}>
           {Array.from({ length: 24 }, (_, h) => {
             const v = h < 6 ? rand(5, 20) : h < 10 ? rand(30, 80) : h < 16 ? rand(20, 50) : h < 22 ? rand(80, 200) : rand(40, 90);
             return (
               <div key={h} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-                <div style={{ width: "75%", height: `${(v / 200) * 60}px`, background: v > 150 ? "#ff3b5c" : v > 80 ? "#007aff" : "#007aff50", borderRadius: "2px 2px 0 0" }} />
-                {h % 6 === 0 && <span style={{ fontSize: 7, color: "#5a6e83" }}>{h}h</span>}
+                <div style={{ width: "75%", height: `${(v / 200) * 60}px`, background: v > 150 ? t.red : v > 80 ? t.blue : `${t.blue}50`, borderRadius: "2px 2px 0 0" }} />
+                {h % 6 === 0 && <span style={{ fontSize: 7, color: t.textDim }}>{h}h</span>}
               </div>
             );
           })}
         </div>
-        <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 3 }}>Red = peak hours. Target for demand response programs.</div>
+        <div style={{ fontSize: 8, color: t.textDim, marginTop: 3, paddingLeft: 8 }}>Red = peak hours. Target for demand response programs.</div>
       </div>
     </div>
   );

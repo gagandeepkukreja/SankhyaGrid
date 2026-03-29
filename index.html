@@ -779,62 +779,87 @@ function NetworkOverview({ data, mob }) {
     <div>
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: mob ? 8 : 12, marginBottom: 14 }}>
         {[
-          { label: "Total Load", value: totalLoad, unit: "kW", color: "#00e5a0" },
-          { label: "Utilization", value: Math.round(totalLoad / totalCap * 100), unit: "%", color: totalLoad / totalCap > 0.85 ? "#ff3b5c" : "#00e5a0" },
-          { label: "Avg Loss", value: avgLoss, unit: "%", color: avgLoss > 15 ? "#ff3b5c" : "#ffb800" },
-          { label: "Solar", value: totalSolar, unit: "kW", color: "#ffb800" },
-          { label: "EV Load", value: totalEv, unit: "kW", color: "#007aff" },
+          { label: "Total Load", value: totalLoad, unit: "kW", color: S.t.blue },
+          { label: "Utilization", value: Math.round(totalLoad / totalCap * 100), unit: "%", color: totalLoad / totalCap > 0.85 ? S.t.red : S.t.green },
+          { label: "Avg Loss", value: avgLoss, unit: "%", color: avgLoss > 15 ? S.t.red : S.t.yellow },
+          { label: "Solar", value: totalSolar, unit: "kW", color: S.t.yellow },
+          { label: "EV Load", value: totalEv, unit: "kW", color: S.t.blue },
         ].map((k, i) => (
-          <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={S.bigNum}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
+          <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={{ ...S.label, paddingLeft: 8 }}>{k.label}</div><div style={{ ...S.bigNum, paddingLeft: 8 }}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
         ))}
       </div>
       <div style={S.card}>
-        <div style={S.glow("#00e5a0")} />
-        <div style={S.label}>Single Line Diagram</div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "14px 0" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ width: 44, height: 44, borderRadius: 8, border: "2px solid #f0f4f8", background: "#f0f4f810", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800, fontSize: 11, color: "#f0f4f8" }}>SUB</div>
-            <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 2 }}>33/11 kV</div>
-          </div>
-          <div style={{ width: 2, height: 10, background: "#1a2235" }} />
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            {data.feeders.map(f => {
-              const c = { healthy: "#00e5a0", warning: "#ffb800", critical: "#ff3b5c" }[f.loadPct > 90 ? "critical" : f.loadPct > 75 ? "warning" : "healthy"];
-              const trs = data.transformers.filter(t => t.feederId === f.id);
-              return (
-                <div key={f.id} style={{ textAlign: "center" }}>
-                  <div style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${c}`, background: `${c}15`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 10, fontWeight: 700, color: c }}>{f.loadPct}%</div>
-                  <div style={{ fontSize: 7, color: "#5a6e83", marginTop: 2, maxWidth: 72 }}>{f.name.replace("Feeder ", "")}</div>
-                  <div style={{ width: 1, height: 8, background: "#1a2235", margin: "3px auto" }} />
-                  <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                    {trs.map(t => {
-                      const tc = { healthy: "#00e5a0", warning: "#ffb800", critical: "#ff3b5c" }[t.health];
-                      return (
-                        <div key={t.id} style={{ textAlign: "center" }}>
-                          <div style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${tc}`, background: `${tc}15`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 7, fontWeight: 700, color: tc }}>{t.loadPct}%</div>
-                          <div style={{ fontSize: 6, color: "#5a6e83", marginTop: 1, maxWidth: 50 }}>{t.name.replace("DT ", "")}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
+        <div style={S.glow(S.t.blue)} />
+        <div style={{ ...S.label, paddingLeft: 8 }}>Single Line Diagram</div>
+        <div style={{ overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: mob ? 12 : 24, padding: "14px 8px", minWidth: mob ? 700 : "auto", flexWrap: mob ? "nowrap" : "wrap", justifyContent: "center" }}>
+          {SUBSTATIONS.map(ss => {
+            const ssFeeders = data.feeders.filter(f => f.substationId === ss.id);
+            const ssColor = { "SS-RPR": S.t.green, "SS-KRB": S.t.yellow, "SS-DRG": S.t.purple, "SS-BSP": S.t.blue }[ss.id] || S.t.blue;
+            return (
+              <div key={ss.id} style={{ textAlign: "center", flex: "0 0 auto" }}>
+                {/* Substation box */}
+                <div style={{ width: 54, height: 54, borderRadius: 8, border: `2px solid ${ssColor}`, background: `${ssColor}10`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 700, fontSize: 9, color: ssColor, flexDirection: "column", lineHeight: 1.2 }}>
+                  <span style={{ fontSize: 7, opacity: 0.7 }}>{ss.voltage.split("/")[0]}</span>
+                  <span>SS</span>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ fontSize: 7, color: S.t.textDim, marginTop: 3, fontWeight: 600 }}>{ss.division}</div>
+                <div style={{ width: 2, height: 10, background: S.t.border, margin: "4px auto" }} />
+                {/* Feeders */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", maxWidth: ssFeeders.length > 4 ? 280 : 200 }}>
+                  {ssFeeders.map(f => {
+                    const loadColor = f.loadPct > 90 ? S.t.red : f.loadPct > 75 ? S.t.yellow : S.t.green;
+                    const trs = data.transformers.filter(tr => tr.feederId === f.id);
+                    return (
+                      <div key={f.id} style={{ textAlign: "center", marginBottom: 4 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${loadColor}`, background: `${loadColor}10`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 9, fontWeight: 700, color: loadColor }}>{f.loadPct}%</div>
+                        <div style={{ fontSize: 6, color: S.t.textDim, marginTop: 2, maxWidth: 60, lineHeight: 1.2 }}>{f.name.replace("33/11kV ", "")}</div>
+                        <div style={{ width: 1, height: 6, background: S.t.border, margin: "2px auto" }} />
+                        <div style={{ display: "flex", gap: 3, justifyContent: "center" }}>
+                          {trs.map(tr => {
+                            const tc = tr.health === "critical" ? S.t.red : tr.health === "warning" ? S.t.yellow : S.t.green;
+                            return (
+                              <div key={tr.id} style={{ textAlign: "center" }}>
+                                <div style={{ width: 20, height: 20, borderRadius: "50%", border: `1.5px solid ${tc}`, background: `${tc}10`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 6, fontWeight: 700, color: tc }}>{tr.loadPct}%</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", paddingTop: 8, borderTop: `1px solid ${S.t.border}`, marginTop: 8 }}>
+          {[
+            { label: "Raipur", color: S.t.green },
+            { label: "Korba", color: S.t.yellow },
+            { label: "Durg", color: S.t.purple },
+            { label: "Bilaspur", color: S.t.blue },
+          ].map(l => (
+            <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8, color: S.t.textDim }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: l.color }} />
+              {l.label}
+            </div>
+          ))}
         </div>
       </div>
       <div style={{ ...S.card, marginTop: 12 }}>
-        <div style={S.glow("#ff3b5c")} />
-        <div style={S.label}>AT&C Loss Monitor</div>
+        <div style={S.glow(S.t.red)} />
+        <div style={{ ...S.label, paddingLeft: 8 }}>AT&C Loss Monitor</div>
         <table style={S.table}>
           <thead><tr><th style={S.th}>Feeder</th><th style={S.th}>Input</th><th style={S.th}>Metered</th><th style={S.th}>Loss</th><th style={S.th}>Flag</th></tr></thead>
           <tbody>
             {data.feeders.map(f => (
               <tr key={f.id}>
-                <td style={{ ...S.td, fontWeight: 600, color: "#f0f4f8" }}>{f.name}</td>
+                <td style={{ ...S.td, fontWeight: 600, color: S.t.textBright }}>{f.name}</td>
                 <td style={S.td}>{f.inputEnergy} kW</td>
                 <td style={S.td}>{f.outputEnergy} kW</td>
-                <td style={{ ...S.td, color: f.lossPct > 18 ? "#ff3b5c" : f.lossPct > 12 ? "#ffb800" : "#00e5a0", fontWeight: 700 }}>{f.lossPct}%</td>
+                <td style={{ ...S.td, color: f.lossPct > 18 ? S.t.red : f.lossPct > 12 ? S.t.yellow : S.t.green, fontWeight: 700 }}>{f.lossPct}%</td>
                 <td style={S.td}><span style={S.badge(f.lossPct > 18 ? "critical" : f.lossPct > 12 ? "warning" : "healthy")}>{f.lossPct > 18 ? "Theft?" : f.lossPct > 12 ? "High" : "Normal"}</span></td>
               </tr>
             ))}

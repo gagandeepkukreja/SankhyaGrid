@@ -1,691 +1,3 @@
-
-SCADA Start-up - Indigenous
-/
-
-What is basic scada for electricity distribution system Basic SCADA for an electricity distribution system is essentially a digital control and monitoring system that helps utilities manage the power grid in real time. 🔌 What SCADA means SCADA = Supervisory Control and Data Acquisition
-
-pasted
-
-This is what all I discussed with chatgpt
-
-14:40
-I've read through your entire ChatGPT conversation. You've done solid thinking here — the problem framing, MVP scope, tech stack choices, and positioning are all heading in the right direction.
-
-Let me give you my honest take on where things stand and where I can add real value:
-
-What ChatGPT got right: The core thesis is strong — last-mile distribution intelligence is a genuine gap in India. The MVP feature prioritization (visibility → control → intelligence) is sensible. The "don't pitch as SCADA" advice is spot on.
-
-Where I'd push back or go deeper:
-
-The conversation stayed quite high-level and motivational. You now need to move from "what should I build" to actually building it. A few things I noticed that could use more rigor: the PyPSA integration advice was surface-level (it's trickier than shown), the "sovereign cloud" angle is more marketing than technical differentiator at seed stage, and the data model needs more thought around what's actually measurable vs aspirational.
-
-So — where do you want me to focus? I can genuinely help you build things, not just describe them.
-
-Once you rank those, I'll get started on actually building it for you — code, files, the real thing.
-
-Q: What would be most useful to you right now?
-A: Ranked: 1. Build the actual MVP dashboard (React/Streamlit), 2. Create the investor pitch deck (10 slides, ready to present), 3. Design the system architecture + data model properly, 4. Build a working PyPSA demo with real grid simulation
-
-14:41
-Great priorities — let's start with the MVP dashboard. Before I build it, let me make sure I nail the right scope and style.
-
-This will let me build exactly what you need — a dashboard that looks like a real product, not a prototype.
-
-Q: What tech do you want the dashboard built in?
-A: React (polished, investor-ready UI)
-
-Q: Which screens should the MVP include? (Select all that apply)
-A: Network map (feeder → transformer → homes), Real-time monitoring (voltage, load, power), Alerts & fault detection panel, DER view (EV + solar integration)
-
-Q: Should I use simulated realistic data or leave it as a skeleton for you to plug in?
-A: Simulated data (looks live and realistic)
-
-14:41
-Perfect — all 4 screens, React, simulated live data. Let me build this properly. I'll start by reading the frontend design skill to ensure the dashboard looks investor-grade.
-
-
-Read frontend design skill for best practices
-Read frontend design skill for best practices
-Now let me build this. I'm going for a dark, control-room aesthetic — think power grid operations center meets modern SaaS. This will be a single React file with all 4 screens, simulated live data that refreshes, and a polished investor-ready look.
-
-
-Created a file, ran a command, read a file
-Created a file, ran a command, read a file
-Here's your GridSight AI MVP dashboard — a fully working React app with all 4 screens and simulated live data refreshing every 5 seconds.
-
-What's in it:
-
-Network Overview — Single-line diagram showing the full hierarchy (Substation → 4 Feeders → 8 Transformers → DER assets + consumers), KPI strip with total load/losses/solar/EV, and an AT&C loss estimation table per feeder (with theft detection flags).
-
-Real-Time Monitoring — Feeder-level parameters (voltage, current, load, PF) with loading bars and sparkline trends, plus a transformer status grid showing load, temperature, and health status per unit.
-
-Alerts Panel — Live alerts with severity levels (critical/warning) plus AI-generated insights like "Transformer T-102 predicted to overload by 7:30 PM" and "Shift EV load to reduce peak by X%."
-
-DER Management — EV charging stations with curtail/enable controls, solar asset monitoring, and an energy balance visualization (Grid Load − Solar + EV = Net Demand).
-
-The data is simulated but realistic — it uses time-of-day patterns (peak loads at 6-10 PM, solar generation during daytime, randomized EV sessions). The Chhattisgarh-region transformer and feeder names give it a local feel for DISCOM demos.
-
-Want me to move on to the investor pitch deck next?
-
-Gridsight dashboard
-Code · JSX 
-IMG_20260329_145903_21.jpg
-I just setched my thoughts. Could you please update things based on thos
-
-15:01
-I can see your sketch clearly. You've added some really important ideas beyond what we built. Let me break down what I'm reading:
-
-1. GIS View (Screen 1 upgrade)
-
-OpenStreetMap-based map with actual coordinates
-Assets on map: feeders, transformers, substations, homes, EV chargers, EV charge parks
-Each asset has a separate legend icon
-Toggle down for metadata on each asset
-Confirm which metrics to be tracked
-Show data health / "is live data available?"
-2. Agentic AI angle
-
-Integrate Sarvam AI
-Capable of ingesting data (uploads)
-Model to run OCR & collect information
-3. Network Topology View → Dashboard/Views based on customer/client
-
-DISCOM view: identity theft, alarms, where EV load is coming up
-4. Updated navigation tabs:
-
-Network Overview
-Real-Time Monitoring
-Alerts
-Predictive Modelling → Weather alerts, historical EV load forecast
-These are solid additions. Let me update the dashboard with the biggest changes — the GIS map view with interactive assets and the predictive modelling tab.
-
-
-Check current dashboard to plan updates
-Check current dashboard to plan updates
-I'll rebuild the entire dashboard with your sketch incorporated — GIS map with Leaflet, asset legends, metadata toggles, data health indicators, predictive modelling tab, and the DISCOM-focused view structure.
-
-
-Created 2 files, ran a command, read a file
-Created 2 files, ran a command, read a file
-Here's your updated GridSight AI v0.2 with everything from your sketch integrated. Here's what changed:
-
-New: GIS View (your hero screen)
-
-OpenStreetMap dark tiles via Leaflet with real Chhattisgarh coordinates
-Every asset type on the map: substations, feeders, transformers, homes, EV chargers, EV charge parks, solar inverters
-Toggleable legend panel — each asset layer can be shown/hidden independently
-Click any asset to see its metadata in the sidebar
-Data Health indicator on every asset (LIVE vs STALE) — exactly as you sketched
-Tracked Metrics config — toggle which metrics (voltage, load, temp, losses, PF) appear when inspecting assets
-Feeder-to-substation and transformer-to-feeder connection lines drawn on the map
-New: Predictive Modelling tab
-
-Weather alert banner (heat advisory with transformer impact)
-EV load forecast with AI recommendation to shift load
-Total load forecast with peak prediction
-Solar generation forecast showing evening drop-off
-Temperature vs transformer thermal risk
-Transformer overload risk table with predicted peaks and "SHIFT LOAD" actions
-Historical EV charging pattern (24-hour heatmap, 7-day average)
-Updated: Alerts now tagged by type — theft, EV load, weather, overload — matching your DISCOM-oriented view concept.
-
-Footer now shows "Sarvam AI Ready" to signal the agentic AI integration path.
-
-Ready to start on the investor pitch deck next?
-
-Gridsight dashboard
-Code · JSX 
-leaflet is showing ukranian flag at the bottom
-
-15:12
-That's the Leaflet attribution/logo watermark — it shows the Ukrainian flag because the Leaflet creator is Ukrainian. I'll remove the default attribution styling and replace it with a clean minimal credit. Let me fix that.
-
-
-Viewed 2 files, edited a file
-Viewed 2 files, edited a file
-Now let me also add a CSS override to style the remaining attribution text to match the dark theme:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Fixed — I disabled Leaflet's default attribution control (which includes the flag logo) and replaced it with a clean, minimal text-only "OpenStreetMap" credit that matches the dark theme. No more flag watermark on your map.
-
-Gridsight dashboard
-Code · JSX 
-1774777996330_image.png
-i want map its showinf blank
-
-15:23
-The map tiles aren't loading — that's because the CARTO dark tile CDN is likely being blocked by the network configuration. The markers and lines are rendering correctly (I can see them in your screenshot), it's just the background map that's blank.
-
-Let me switch to a tile provider that's more likely to work, and also add a fallback:
-
-
-Edited 2 files, viewed a file
-Edited 2 files, viewed a file
-Now let me add a CSS filter to darken the standard OSM tiles so they match the dark theme:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Two changes made:
-
-Switched tile source from CARTO CDN (which was being blocked) to standard OpenStreetMap tiles (tile.openstreetmap.org) — these are the most reliable and widely accessible tiles available.
-
-Added dark mode CSS filter on the tile pane so the standard OSM tiles get inverted and color-shifted to match the dark dashboard theme, while keeping the markers and lines unaffected.
-
-You should now see the actual map with roads, cities, and geography behind your assets. Let me know if it loads properly now.
-
-Gridsight dashboard
-Code · JSX 
-Remove soverign ai, sarvam ai ready cloud stuff from the bottom.
-Just add make in India logo
-
-15:24
-
-Edited 2 files, viewed a file, read a file
-Edited 2 files, viewed a file, read a file
-Done — removed all "Sovereign Cloud" and "Sarvam AI Ready" text. Both the header chip and footer now show a small Indian tricolour flag with MAKE IN INDIA branding instead.
-
-Gridsight dashboard
-Code · JSX 
-Just one on whole page 
-Just mention with love made in India
-
-15:26
-
-Edited 2 files, viewed a file, read a file
-Edited 2 files, viewed a file, read a file
-Clean — just one centered line in the footer: with ❤️ made in India. Nothing else.
-
-Gridsight dashboard
-Code · JSX 
-In the asset metadata tab, I want upload option button that can take in PDF,JPG, PNG, .docx - user stores the data.
-And then AI does work as LLM and OCR to pull information out.
-
-15:29
-Good idea — this adds the "agentic AI" angle from your sketch. I'll add a file upload button to the asset metadata panel that accepts PDF/JPG/PNG/DOCX, shows uploaded files, and simulates an AI-powered OCR/LLM extraction step that pulls out structured asset data.
-
-
-Viewed 2 files
-Viewed 2 files
-Now I need to add upload state and the AI extraction UI. I'll add it right after the coordinates line inside the asset metadata card, and also add the state variables to GISView:
-
-
-Add upload state variables to GISView
-Add upload state variables to GISView
-Now replace the section after coordinates with the upload + AI extraction panel:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Here's what the upload + AI extraction flow does now:
-
-Upload button — accepts PDF, JPG, PNG, DOCX. Supports multiple files at once. Appears inside the Asset Metadata panel when you click any asset on the map.
-
-File list — shows each uploaded file with a colored type badge (PDF in red, DOCX in blue, images in yellow), filename, and file size. Files are stored per-asset so each transformer/feeder/EV station keeps its own documents.
-
-AI Processing animation — after upload, shows a "Running OCR & LLM extraction" progress bar for ~2.5 seconds to simulate the Sarvam/LLM pipeline.
-
-Extracted results — displays structured data pulled from the document with confidence scores per field. For PDFs/DOCX it extracts things like Make, Rating, Serial No, Year of Install, Last Maintenance. For images (JPG/PNG) it simulates OCR extraction of nameplate data plus a visual condition assessment.
-
-The confidence scores are color-coded — green (>90%), yellow (80-90%), red (<80%) — so a DISCOM operator can see which fields need manual verification. This is exactly the "agentic AI angle" from your sketch.
-
-Gridsight dashboard
-Code · JSX 
-Platform name should be this - SankhyaGrid (सांख्य)
-Instead of G logo on top replace with सां and in artistic way
-
-15:32
-
-Viewed 2 files, edited a file, read a file
-Viewed 2 files, edited a file, read a file
-Updated — the header now reads SANKHYAGRID सांख्य with:
-
-The logo mark shows सां in bold serif Devanagari on a gradient that flows saffron → green (tricolour-inspired), with a subtle glow
-The platform name reads "SANKHYAGRID" in the main weight with "सांख्य" in lighter grey beside it
-Tagline stays "Distribution Intelligence Platform"
-All references to GridSight are gone from the visible UI.
-
-Gridsight dashboard
-Code · JSX 
-1774778599349_image.png
-Map is still not coming up its coming blank
-
-15:33
-The OSM tiles are also being blocked by the network sandbox. Since external tile servers aren't accessible, let me switch to a pure SVG-based map that doesn't need any external tiles — it'll render the Chhattisgarh region with the assets plotted on it directly, no Leaflet dependency needed.
-
-
-Viewed 2 files
-Viewed 2 files
-I'll replace the entire GISView with a self-contained SVG map — no external dependencies. It'll have pan/zoom, the same legend, clickable assets, connection lines, and a dark grid background.
-
-
-Replace Leaflet-based GIS with self-contained SVG interactive map
-Replace Leaflet-based GIS with self-contained SVG interactive map
-Now remove the Leaflet CSS references from the style block:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Completely replaced Leaflet with a self-contained SVG map — zero external dependencies, no tile servers needed. Here's what it does:
-
-Dark grid background with the "CHHATTISGARH DISTRIBUTION NETWORK" label, giving it a proper control-room feel.
-
-All assets plotted using real coordinate positions converted to SVG space — substations (square), feeders (large circles with load %), transformers, homes, EV chargers/parks, and solar assets.
-
-Connection lines drawn between substation → feeders (dashed), feeders → transformers, and transformers → downstream assets (homes, EVs, solar).
-
-Interactive — click any asset to select it (shows a rotating dashed ring), hover for highlight effect. Feeders with >85% load get a pulsing alarm ring animation.
-
-Pan & zoom — drag to pan, scroll wheel to zoom. Works entirely within the SVG, no external libraries.
-
-The legend, sidebar, upload panel, and AI extraction all work exactly as before. This will render immediately with no network calls.
-
-Gridsight dashboard
-Code · JSX 
-I still cant access map
-Can I host it anywhere for now using git/google collab/hugging face whatever conveinet?
-
-15:35
-Yes, the easiest option for you would be to host it as a static site. Let me give you a few quick options and prepare the files:
-
-While you pick, let me also prepare a single self-contained HTML file that bundles everything — React, the dashboard, all inline — so it works anywhere with zero build step.
-
-
-Ran 2 commands, viewed a file
-Ran 2 commands, viewed a file
-Let me build a standalone HTML file that bundles React via CDN + Babel so it works as a single file you can deploy anywhere:
-
-
-Ran 4 commands, read a file
-Ran 4 commands, read a file
-Here are both files. The HTML file is fully self-contained and works by just opening it in a browser. Here's how to deploy on each platform:
-
-GitHub Pages (simplest)
-
-Create a new repo on GitHub
-Upload sankhyagrid-dashboard.html and rename it to index.html
-Go to Settings → Pages → Deploy from main branch
-Your dashboard is live at https://yourusername.github.io/reponame
-Hugging Face Spaces
-
-Go to huggingface.co/spaces → New Space
-Choose "Static" as the SDK
-Upload the HTML file as index.html
-It's live instantly
-Vercel
-
-Create a folder, put the HTML file as index.html
-Run npx vercel in that folder
-Done — gives you a URL
-Or just double-click the HTML file on your computer — it'll open in your browser and work (it loads React from CDN).
-
-Pick whichever is fastest for you. The HTML file has everything — React loaded from unpkg CDN, Babel for JSX compilation, the full dashboard with all 6 tabs, SVG map, upload panel, everything.
-
-Sankhyagrid dashboard
-Code · HTML 
-Gridsight dashboard
-Code · JSX 
-Q: Which platform do you prefer to host on?
-A: GitHub Pages (free, just push to repo)
-
-15:39
-Let me prepare the exact repo structure for you — ready to push.
-
-
-Ran 2 commands, created a file, read a file
-Ran 2 commands, created a file, read a file
-Here's exactly what to do — step by step:
-
-Step 1: Create repo Go to github.com → New Repository → name it sankhyagrid → Public → Create
-
-Step 2: Upload files Click "uploading an existing file" → drag both index.html and README.md → Commit
-
-Step 3: Enable GitHub Pages Go to Settings → Pages → Source: "Deploy from a branch" → Branch: main → Folder: / (root) → Save
-
-Step 4: Wait ~1 minute Your dashboard will be live at: https://yourusername.github.io/sankhyagrid/
-
-That's it — two files, zero build step, fully working dashboard. Update the README's demo link with your actual GitHub username once it's live.
-
-Index
-Code · HTML 
-Readme
-Document · MD 
-1774779003046_image.png
-Tell me what should I do here
-
-15:40
-The easiest way since you're on this screen — just click "uploading an existing file" (the blue link near the top).
-
-Then drag and drop both files you downloaded from me:
-
-index.html
-README.md
-Commit with message: Initial SankhyaGrid dashboard
-
-After that, go to Settings → Pages → Branch: main → / (root) → Save
-
-Your dashboard will be live at: https://gagandeepkukreja.github.io/SankhyaGrid/
-
-That's it — no terminal needed.
-
-Use this to fix my repo information
-
-15:47
-
-Edited a file, viewed a file
-Edited a file, viewed a file
-The README already has your correct repo URL. Both files are ready to upload:
-
-
-Presented 2 files
-Presented 2 files
-Everything's already set with your repo info — the README points to https://gagandeepkukreja.github.io/SankhyaGrid/.
-
-Download both files, then on your GitHub page click "uploading an existing file" → drag both in → commit. Then Settings → Pages → main branch → Save. You'll be live in about a minute.
-
-Index
-Code · HTML 
-Readme
-Document · MD 
-How can I delete old files from this repo and upload new ones
-
-15:50
-On your repo page at github.com/gagandeepkukreja/SankhyaGrid:
-
-Delete old files:
-
-Click on the file you want to delete
-Click the trash icon (top right of the file view)
-Commit the deletion
-Or do it all at once (easier):
-
-Click "Add file" → "Upload files"
-Drag in the new index.html and README.md
-It will automatically overwrite files with the same name
-Commit
-So if your old files are also named index.html and README.md, just re-upload — GitHub replaces them automatically. No need to delete first.
-
-1774780242906_image.png
-Just uploaded
-What should I do now?
-
-16:00
-Repo looks great. Now two things:
-
-1. Make it Public (GitHub Pages needs public repo on free plan)
-
-Click Settings (top menu bar)
-Scroll down to "Danger Zone" at the bottom
-Click "Change visibility" → change to Public
-2. Enable GitHub Pages
-
-Still in Settings → click "Pages" in the left sidebar
-Under "Source" select "Deploy from a branch"
-Branch: main → Folder: / (root)
-Click Save
-Wait about a minute, then your dashboard is live at:
-
-https://gagandeepkukreja.github.io/SankhyaGrid/
-
-Thanks man. This worked.
-Can you also optimise this for phone?
-So if anyone opens in phone it looks neat as well?
-
-16:11
-Let me check the current layout and add responsive styles throughout.
-
-
-Viewed 2 files
-Viewed 2 files
-Now I need to add a useIsMobile hook and make all grids/layouts responsive. Let me look at the key layout sections:
-
-
-Viewed 2 files, ran a command
-Viewed 2 files, ran a command
-Now I have a clear picture. I need to add a useIsMobile hook and thread it through all components to make grids stack, tables scroll, and the GIS view go vertical on mobile. Let me do this systematically:
-
-
-Add useIsMobile hook after the React imports
-Add useIsMobile hook after the React imports
-Now make the header mobile-friendly:
-
-
-Make header responsive - hide subtitle on mobile, smaller logo
-Make header responsive - hide subtitle on mobile, smaller logo
-Now add mob variable to the main app and pass it down:
-
-
-Add mob variable and pass to child components
-Add mob variable and pass to child components
-Now update the main content area to pass mob to children:
-
-
-Pass mob prop to all child views and make nav scrollable on mobile
-Pass mob prop to all child views and make nav scrollable on mobile
-Now update GISView to stack vertically on mobile:
-
-
-Edited 2 files
-Edited 2 files
-Now update NetworkOverview:
-
-
-Edited 2 files, viewed a file
-Edited 2 files, viewed a file
-Now make the table scrollable on mobile and fix the loss table:
-
-
-Find the loss table in NetworkOverview
-Find the loss table in NetworkOverview
-Now update Monitoring:
-
-
-Make Monitoring responsive
-Make Monitoring responsive
-Now find the closing of that table and add the wrapper close:
-
-
-Viewed a file, edited a file
-Viewed a file, edited a file
-Now update AlertsView:
-
-
-Make AlertsView responsive
-Make AlertsView responsive
-Now PredictiveView:
-
-
-Make PredictiveView responsive
-Make PredictiveView responsive
-Also add couple of more featres:
-
-Half hourly consumption in kVa at home, feeder, transformer, solar generation at home, and in consumption pattern for home may be if we can segregate solar data and consumption data and for EV if the profile is suddenly spiking up it tells me potential EV charging at that asset. 
-Probably we can navigate from the metadata page itself
-
-16:13
-Good features — this adds real depth to the asset-level analytics. Let me update the dashboard with:
-
-Asset Analytics panel — accessible from the metadata sidebar via a "View Analytics" button
-Half-hourly consumption profiles (kVA) for homes, feeders, transformers
-Solar generation overlay on home consumption (separated visually)
-EV detection — spike detection on consumption patterns flagging "Potential EV Charging"
-
-Viewed a file, edited a file
-Viewed a file, edited a file
-Now update DERView:
-
-
-Edited 2 files, viewed a file
-Edited 2 files, viewed a file
-Now let me add the Asset Analytics component with half-hourly profiles, solar/consumption separation, and EV spike detection. I'll add it right before the main app function:
-
-
-Viewed 2 files, edited a file
-Viewed 2 files, edited a file
-Now I need to add the "View Analytics" button in the GIS metadata panel and wire it up. Let me find the asset metadata section:
-
-
-Viewed 2 files, ran a command
-Viewed 2 files, ran a command
-Now add a "View Analytics" button and an analyticsAsset state, plus wire the analytics view into GISView:
-
-
-Add analyticsAsset state and View Analytics button before upload section
-Add analyticsAsset state and View Analytics button before upload section
-Now add the analytics button right after coordinates:
-
-
-Add View Analytics button after coordinates, before upload section
-Add View Analytics button after coordinates, before upload section
-Now wrap the GISView return to show analytics when an asset is selected for it:
-
-
-Viewed 2 files, edited 2 files
-Viewed 2 files, edited 2 files
-Now let me also make the energy balance in DER view wrap on mobile:
-
-
-Viewed a file, edited a file
-Viewed a file, edited a file
-Now rebuild the standalone HTML for deployment:
-
-
-Check line count
-Check line count
-Continue
-
-16:17
-
-Presented 2 files
-Presented 2 files
-Here's what's new — download both files and re-upload to your GitHub repo (they'll overwrite the old ones):
-
-Mobile Responsive:
-
-Header shrinks — hides subtitle and timestamp on small screens
-Nav tabs scroll horizontally
-All KPI grids go from 4-5 columns → 2 columns on phone
-Transformer grid goes 4 → 2 columns
-GIS view stacks vertically (map on top, sidebar below)
-Tables scroll horizontally instead of breaking layout
-Energy balance wraps on small screens
-New: Asset Analytics (the big addition)
-
-Click any asset on the GIS map → click "📊 VIEW ANALYTICS" button in the metadata sidebar → opens a full analytics page with:
-
-Half-hourly consumption profile (48 bars) — realistic Indian load curve with morning peak, afternoon dip, evening peak
-Solar generation overlay — yellow line/area chart layered on the consumption bars, showing when solar offsets grid demand
-Solar vs Grid split — morning/afternoon/evening breakdown with stacked bars showing what percentage came from solar vs grid
-EV spike detection — red-highlighted bars where consumption suddenly jumps, with AI confidence scores. Each spike shows estimated charger level (3-7kW or 7-11kW) and duration
-Net demand curve — consumption minus solar as an area chart
-KPI strip — peak demand, average demand, total solar generation, number of EV events detected
-The EV detection is the standout — it flags bars like "Spike at 19:30 — +38 kVA for ~2h, pattern matches Level 2 EV charger, 87% confidence" with a recommendation to register the EV load for demand response.
-
-To update your live site, just go to your repo → Add file → Upload → drag in the new index.html → commit. Takes 30 seconds.
-
-Index
-Code · HTML 
-Readme
-Document · MD 
-Now I want to push this as a second version update/feature. Teach me professionally how I shall be doing that on git on my previous repo
-
-16:18
-Here's the professional Git workflow for pushing a version update:
-
-Option A: Via GitHub website (quickest for you right now)
-
-Go to github.com/gagandeepkukreja/SankhyaGrid
-Click on index.html → click the pencil icon (edit) → select "Delete this file" → Commit
-Same for README.md if you want to update it
-Then Add file → Upload files → drag in the new index.html and README.md
-Important: Write a proper commit message instead of the default. Use:
-v0.3.0: Mobile responsive + Asset analytics with EV detection
-
-- Mobile responsive layout (all grids, tables, header)
-- Half-hourly consumption profiles (kVA) per asset
-- Solar vs grid consumption split view
-- EV charging spike detection with AI confidence
-- Navigate to analytics from GIS asset metadata
-Click Commit changes
-Option B: Via terminal (the professional way — learn this)
-
-Open terminal on your computer:
-
-bash
-# 1. Clone your repo (only first time)
-git clone https://github.com/gagandeepkukreja/SankhyaGrid.git
-cd SankhyaGrid
-
-# 2. Copy the new files into this folder
-#    (replace the old index.html and README.md with the new ones you downloaded)
-
-# 3. Check what changed
-git status
-
-# 4. Stage the changes
-git add .
-
-# 5. Commit with a proper message
-git commit -m "v0.3.0: Mobile responsive + Asset analytics with EV detection
-
-- Mobile responsive layout (all grids, tables, header)
-- Half-hourly consumption profiles (kVA) per asset
-- Solar vs grid consumption split view
-- EV charging spike detection with AI confidence
-- Navigate to analytics from GIS asset metadata"
-
-# 6. Push
-git push origin main
-For future updates, the cycle is always:
-
-bash
-cd SankhyaGrid
-# make your changes
-git add .
-git commit -m "v0.X.0: short description"
-git push origin main
-```
-
-**Professional commit message format:**
-```
-v[major].[minor].[patch]: One-line summary
-
-- Bullet point detail
-- Another change
-- Bug fix if any
-Where major = big redesign, minor = new feature, patch = small fix. So this update is v0.3.0 (new feature, still pre-launch).
-
-I'd recommend learning Option B — every investor will expect you to know Git from terminal. For now, Option A works fine to get the update live.
-
-1774781479763_image.png
-No option under index html to delete file
-
-16:21
-You're in the edit view right now. To replace the file content:
-
-Select all the code in the editor — press Ctrl + A (or Cmd + A on Mac)
-Delete it all
-Open the new index.html you downloaded from me in a text editor (Notepad, VS Code, anything)
-Copy all its content — Ctrl + A then Ctrl + C
-Paste it into the GitHub editor — Ctrl + V
-Click the green "Commit changes..." button
-Write the commit message:
-v0.3.0: Mobile responsive + Asset analytics with EV detection
-Click "Commit changes"
-That's it — same result as deleting and re-uploading, just faster since you're already in the editor.
-
-
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Index · HTML
-Copy
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -703,7 +15,7 @@ Copy
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
- 
+
 // ─── Responsive hook ─────────────────────────────────────────────────────
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
@@ -714,19 +26,19 @@ function useIsMobile(breakpoint = 768) {
   }, [breakpoint]);
   return isMobile;
 }
- 
+
 // ─── Asset Data with Real Coordinates (Chhattisgarh region) ──────────────
 const SUBSTATIONS = [
   { id: "SS-01", name: "Substation Raipur 132kV", lat: 21.2514, lng: 81.6296, capacityMva: 50 },
 ];
- 
+
 const FEEDERS = [
   { id: "F-01", name: "Feeder Raipur-North", capacity: 800, zone: "Zone A", substationId: "SS-01", lat: 21.258, lng: 81.632, color: "#00e5a0" },
   { id: "F-02", name: "Feeder Bilaspur-Central", capacity: 650, zone: "Zone A", substationId: "SS-01", lat: 22.080, lng: 82.135, color: "#007aff" },
   { id: "F-03", name: "Feeder Korba-East", capacity: 720, zone: "Zone B", substationId: "SS-01", lat: 22.349, lng: 82.686, color: "#ffb800" },
   { id: "F-04", name: "Feeder Durg-South", capacity: 550, zone: "Zone B", substationId: "SS-01", lat: 21.192, lng: 81.287, color: "#e056fd" },
 ];
- 
+
 const TRANSFORMERS = [
   { id: "T-101", feederId: "F-01", name: "DT Shankar Nagar", capacityKva: 250, lat: 21.261, lng: 81.626 },
   { id: "T-102", feederId: "F-01", name: "DT Civil Lines", capacityKva: 400, lat: 21.255, lng: 81.639 },
@@ -737,7 +49,7 @@ const TRANSFORMERS = [
   { id: "T-107", feederId: "F-04", name: "DT Supela", capacityKva: 250, lat: 21.188, lng: 81.281 },
   { id: "T-108", feederId: "F-04", name: "DT Bhilai Sector 6", capacityKva: 400, lat: 21.197, lng: 81.294 },
 ];
- 
+
 const HOMES = [
   { id: "H-01", name: "Shankar Nagar Colony", transformerId: "T-101", lat: 21.263, lng: 81.624, count: 120 },
   { id: "H-02", name: "Civil Lines Residential", transformerId: "T-102", lat: 21.253, lng: 81.641, count: 85 },
@@ -745,7 +57,7 @@ const HOMES = [
   { id: "H-04", name: "NTPC Staff Quarters", transformerId: "T-105", lat: 22.354, lng: 82.678, count: 150 },
   { id: "H-05", name: "Bhilai Sec 6 Flats", transformerId: "T-108", lat: 21.199, lng: 81.296, count: 300 },
 ];
- 
+
 const DER_ASSETS = [
   { id: "EV-01", type: "ev", subtype: "charger", name: "EV Hub Shankar Nagar", transformerId: "T-101", maxKw: 50, lat: 21.260, lng: 81.628 },
   { id: "EV-02", type: "ev", subtype: "charger", name: "EV Station Civil Lines", transformerId: "T-102", maxKw: 120, lat: 21.256, lng: 81.637 },
@@ -756,25 +68,25 @@ const DER_ASSETS = [
   { id: "SOL-03", type: "solar", subtype: "park", name: "Solar Park Supela", transformerId: "T-107", maxKw: 200, lat: 21.190, lng: 81.279 },
   { id: "SOL-04", type: "solar", subtype: "rooftop", name: "Rooftop Bhilai Sec 6", transformerId: "T-108", maxKw: 45, lat: 21.196, lng: 81.292 },
 ];
- 
+
 // ─── Utility ─────────────────────────────────────────────────────────────
 const rand = (a, b) => Math.random() * (b - a) + a;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
- 
+
 // ─── Simulated Live Data ─────────────────────────────────────────────────
 function generateLiveData(hour) {
   const isDaytime = hour >= 6 && hour <= 18;
   const isPeak = (hour >= 18 && hour <= 22) || (hour >= 7 && hour <= 10);
   const loadMult = isPeak ? rand(0.75, 0.95) : rand(0.35, 0.65);
   const solarMult = isDaytime ? Math.sin(((hour - 6) / 12) * Math.PI) * rand(0.6, 0.95) : 0;
- 
+
   const feeders = FEEDERS.map(f => {
     const loadKw = f.capacity * loadMult * rand(0.85, 1.15);
     const inputE = loadKw * rand(1.0, 1.05);
     const outputE = loadKw * rand(0.78, 0.96);
     return { ...f, loadKw: Math.round(loadKw), loadPct: Math.round((loadKw / f.capacity) * 100), voltage: +(11 * rand(0.94, 1.06)).toFixed(2), current: +(loadKw / (11 * 1.732 * rand(0.85, 0.95))).toFixed(1), pf: +rand(0.82, 0.98).toFixed(2), inputEnergy: Math.round(inputE), outputEnergy: Math.round(outputE), lossPct: +((1 - outputE / inputE) * 100).toFixed(1), dataHealth: Math.random() > 0.15 ? "live" : "stale" };
   });
- 
+
   const transformers = TRANSFORMERS.map(t => {
     const tLoadMult = loadMult * rand(0.7, 1.3);
     const loadKva = t.capacityKva * clamp(tLoadMult, 0.2, 1.15);
@@ -786,7 +98,7 @@ function generateLiveData(hour) {
     else if (temp > 70) health = "warning";
     return { ...t, loadKva: Math.round(loadKva), loadPct: Math.round(loadPct), voltage: +(0.415 * rand(0.92, 1.08)).toFixed(3), temperature: Math.round(temp), health, dataHealth: Math.random() > 0.1 ? "live" : "stale" };
   });
- 
+
   const ders = DER_ASSETS.map(d => {
     if (d.type === "ev") {
       const active = Math.random() > 0.3;
@@ -798,12 +110,12 @@ function generateLiveData(hour) {
       return { ...d, status: gen > 0 ? "generating" : "offline", powerKw: gen, irradiance: Math.round(solarMult * 1000), dataHealth: Math.random() > 0.1 ? "live" : "stale" };
     }
   });
- 
+
   const homes = HOMES.map(h => ({ ...h, demandKw: Math.round(h.count * rand(0.3, 1.2)), avgVoltage: +(230 * rand(0.92, 1.08)).toFixed(0), dataHealth: Math.random() > 0.2 ? "live" : "stale" }));
- 
+
   return { feeders, transformers, ders, homes, timestamp: new Date() };
 }
- 
+
 function generateAlerts(data) {
   const alerts = [];
   const now = new Date();
@@ -826,7 +138,7 @@ function generateAlerts(data) {
   alerts.push({ id: "AI-WX-1", severity: "insight", message: `High temperature forecast (42 deg C) — transformer cooling reduced, pre-position load shedding`, asset: "WEATHER", time: now, type: "weather" });
   return alerts.sort((a, b) => b.time - a.time);
 }
- 
+
 // ─── Sparkline ───────────────────────────────────────────────────────────
 function Sparkline({ data, color = "#00e5a0", w = 80, h = 24 }) {
   if (!data || data.length < 2) return null;
@@ -834,7 +146,7 @@ function Sparkline({ data, color = "#00e5a0", w = 80, h = 24 }) {
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - mn) / r) * h}`).join(" ");
   return <svg width={w} height={h} style={{ display: "block" }}><polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" /></svg>;
 }
- 
+
 // ─── Mini Bar Chart ──────────────────────────────────────────────────────
 function MiniBarChart({ data, labels, color = "#007aff", w = 240, h = 90 }) {
   const mx = Math.max(...data);
@@ -856,7 +168,7 @@ function MiniBarChart({ data, labels, color = "#007aff", w = 240, h = 90 }) {
     </svg>
   );
 }
- 
+
 // ─── History hook ────────────────────────────────────────────────────────
 function useHistory(items, key, maxLen = 30) {
   const ref = useRef({});
@@ -869,7 +181,7 @@ function useHistory(items, key, maxLen = 30) {
   }, [items]);
   return ref.current;
 }
- 
+
 // ─── Legend Icons ────────────────────────────────────────────────────────
 const LEGEND = {
   substation: { label: "Substation", color: "#f0f4f8" },
@@ -880,11 +192,11 @@ const LEGEND = {
   ev_park: { label: "EV Charge Park", color: "#0055cc" },
   solar: { label: "Solar Inverter", color: "#ffb800" },
 };
- 
+
 function LegendDot({ color, size = 10 }) {
   return <span style={{ display: "inline-block", width: size, height: size, borderRadius: size / 2, background: color, border: `1.5px solid ${color}`, flexShrink: 0 }} />;
 }
- 
+
 // ─── Data Health Badge ───────────────────────────────────────────────────
 function DataHealthBadge({ status }) {
   const isLive = status === "live";
@@ -895,7 +207,7 @@ function DataHealthBadge({ status }) {
     </span>
   );
 }
- 
+
 // ─── Styles ──────────────────────────────────────────────────────────────
 const S = {
   app: { fontFamily: "'JetBrains Mono', 'Fira Code', monospace", background: "#060a13", color: "#c8d6e5", minHeight: "100vh", fontSize: 13 },
@@ -925,7 +237,7 @@ const S = {
     return { display: "flex", gap: 10, alignItems: "flex-start", padding: "9px 12px", borderLeft: `3px solid ${brd[sev]}`, background: bg[sev], borderRadius: "0 5px 5px 0", marginBottom: 5 };
   },
 };
- 
+
 // ─── GIS MAP VIEW (SVG-based, no external tiles) ────────────────────────
 function GISView({ data, mob }) {
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -940,18 +252,18 @@ function GISView({ data, mob }) {
   const [dragging, setDragging] = useState(null);
   const svgRef = useRef(null);
   const [hovered, setHovered] = useState(null);
- 
+
   // Map geo coords to SVG space
   const allLats = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lat);
   const allLngs = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lng);
   const minLat = Math.min(...allLats) - 0.02, maxLat = Math.max(...allLats) + 0.02;
   const minLng = Math.min(...allLngs) - 0.02, maxLng = Math.max(...allLngs) + 0.02;
- 
+
   const toSvg = (lat, lng) => ({
     x: ((lng - minLng) / (maxLng - minLng)) * 900 + 50,
     y: ((maxLat - lat) / (maxLat - minLat)) * 600 + 50,
   });
- 
+
   // Pan
   const onMouseDown = (e) => {
     if (e.target.closest("[data-asset]")) return;
@@ -972,7 +284,7 @@ function GISView({ data, mob }) {
       return { x: v.x + (v.w - nw) / 2, y: v.y + (v.h - nh) / 2, w: nw, h: nh };
     });
   };
- 
+
   // Collect all visible assets for SVG
   const ssPos = SUBSTATIONS.map(s => ({ ...s, ...toSvg(s.lat, s.lng), assetType: "substation", dataHealth: "live" }));
   const fPos = data.feeders.map(f => ({ ...f, ...toSvg(f.lat, f.lng), assetType: "feeder" }));
@@ -980,12 +292,12 @@ function GISView({ data, mob }) {
   const hPos = data.homes.map(h => ({ ...h, ...toSvg(h.lat, h.lng), assetType: "home" }));
   const evPos = data.ders.filter(d => d.type === "ev").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: d.subtype === "park" ? "ev_park" : "ev_charger" }));
   const solPos = data.ders.filter(d => d.type === "solar").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: "solar" }));
- 
+
   // If analytics view is active, show it instead of the map
   if (analyticsAsset) {
     return <AssetAnalytics asset={analyticsAsset} onBack={() => setAnalyticsAsset(null)} mob={mob} />;
   }
- 
+
   return (
     <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 270px", gap: 12, height: mob ? "auto" : "calc(100vh - 130px)" }}>
       <div style={{ ...S.card, padding: 0, overflow: "hidden", position: "relative", height: mob ? 350 : "auto" }}>
@@ -1006,24 +318,24 @@ function GISView({ data, mob }) {
             const y = i * 55;
             return <line key={`gh${i}`} x1={0} y1={y} x2={1100} y2={y} stroke="#131b2e" strokeWidth="0.5" />;
           })}
- 
+
           {/* Region labels */}
           <text x="80" y="30" fill="#1a2235" fontSize="11" fontFamily="inherit" fontWeight="600">CHHATTISGARH DISTRIBUTION NETWORK</text>
           {fPos.map(f => (
             <text key={`lbl-${f.id}`} x={f.x} y={f.y - 18} fill="#1e2d42" fontSize="7" fontFamily="inherit" textAnchor="middle">{f.zone}</text>
           ))}
- 
+
           {/* Connection lines: SS → Feeders */}
           {visibleLayers.feeder && ssPos.map(ss => fPos.map(f => (
             <line key={`ln-ss-${f.id}`} x1={ss.x} y1={ss.y} x2={f.x} y2={f.y} stroke={f.color} strokeWidth="1.5" strokeDasharray="6 4" opacity="0.35" />
           )))}
- 
+
           {/* Connection lines: Feeder → Transformers */}
           {visibleLayers.transformer && tPos.map(t => {
             const f = fPos.find(f => f.id === t.feederId);
             return f ? <line key={`ln-f-${t.id}`} x1={f.x} y1={f.y} x2={t.x} y2={t.y} stroke={f.color} strokeWidth="1" opacity="0.2" /> : null;
           })}
- 
+
           {/* Connection lines: Transformer → children */}
           {hPos.map(h => {
             const t = tPos.find(t => t.id === h.transformerId);
@@ -1034,7 +346,7 @@ function GISView({ data, mob }) {
             const show = d.assetType === "solar" ? visibleLayers.solar : visibleLayers[d.assetType];
             return t && show ? <line key={`ln-d-${d.id}`} x1={t.x} y1={t.y} x2={d.x} y2={d.y} stroke={d.type === "ev" ? "#007aff" : "#ffb800"} strokeWidth="0.5" opacity="0.15" /> : null;
           })}
- 
+
           {/* Substations */}
           {visibleLayers.substation && ssPos.map(s => (
             <g key={s.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(s)} onMouseEnter={() => setHovered(s.id)} onMouseLeave={() => setHovered(null)}>
@@ -1044,7 +356,7 @@ function GISView({ data, mob }) {
               <text x={s.x} y={s.y + 26} textAnchor="middle" fill="#5a6e83" fontSize="6" fontFamily="inherit">132kV Sub</text>
             </g>
           ))}
- 
+
           {/* Feeders */}
           {visibleLayers.feeder && fPos.map(f => {
             const c = f.loadPct > 90 ? "#ff3b5c" : f.loadPct > 75 ? "#ffb800" : "#00e5a0";
@@ -1058,7 +370,7 @@ function GISView({ data, mob }) {
               </g>
             );
           })}
- 
+
           {/* Transformers */}
           {visibleLayers.transformer && tPos.map(t => {
             const c = t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#ffb800";
@@ -1070,7 +382,7 @@ function GISView({ data, mob }) {
               </g>
             );
           })}
- 
+
           {/* Homes */}
           {visibleLayers.home && hPos.map(h => (
             <g key={h.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(h)} onMouseEnter={() => setHovered(h.id)} onMouseLeave={() => setHovered(null)}>
@@ -1078,7 +390,7 @@ function GISView({ data, mob }) {
               <text x={h.x} y={h.y + 2.5} textAnchor="middle" fill="#8e7cc3" fontSize="5.5" fontWeight="700" fontFamily="inherit">H</text>
             </g>
           ))}
- 
+
           {/* EV assets */}
           {evPos.map(d => {
             const show = d.assetType === "ev_park" ? visibleLayers.ev_park : visibleLayers.ev_charger;
@@ -1092,7 +404,7 @@ function GISView({ data, mob }) {
               </g>
             );
           })}
- 
+
           {/* Solar */}
           {visibleLayers.solar && solPos.map(d => {
             const c = d.status === "generating" ? "#ffb800" : "#3a4a5e";
@@ -1103,14 +415,14 @@ function GISView({ data, mob }) {
               </g>
             );
           })}
- 
+
           {/* Selected highlight ring */}
           {selectedAsset && (() => {
             const pos = [...ssPos, ...fPos, ...tPos, ...hPos, ...evPos, ...solPos].find(a => a.id === selectedAsset.id);
             return pos ? <circle cx={pos.x} cy={pos.y} r={22} fill="none" stroke="#00e5a0" strokeWidth="1" strokeDasharray="3 3" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from={`0 ${pos.x} ${pos.y}`} to={`360 ${pos.x} ${pos.y}`} dur="8s" repeatCount="indefinite" /></circle> : null;
           })()}
         </svg>
- 
+
         {/* Legend overlay */}
         <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10, background: "#0d1320ee", borderRadius: 8, padding: 10, border: "1px solid #1a2235", maxWidth: 170 }}>
           <div style={{ ...S.label, marginBottom: 5 }}>Asset Layers</div>
@@ -1123,7 +435,7 @@ function GISView({ data, mob }) {
           ))}
         </div>
       </div>
- 
+
       {/* Sidebar */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, overflowY: "auto" }}>
         {/* Metrics Config Panel */}
@@ -1138,7 +450,7 @@ function GISView({ data, mob }) {
             </label>
           ))}
         </div>
- 
+
         {/* Selected Asset */}
         <div style={S.card}>
           <div style={S.glow("#00e5a0")} />
@@ -1186,7 +498,7 @@ function GISView({ data, mob }) {
               <div style={{ marginTop: 6, padding: "4px 6px", background: "#111a2b", borderRadius: 3, fontSize: 8, color: "#5a6e83" }}>
                 Coords: {selectedAsset.lat?.toFixed(4)}, {selectedAsset.lng?.toFixed(4)}
               </div>
- 
+
               {/* View Analytics Button */}
               <button
                 onClick={() => setAnalyticsAsset(selectedAsset)}
@@ -1194,7 +506,7 @@ function GISView({ data, mob }) {
               >
                 📊 VIEW ANALYTICS — Half-Hourly Profile
               </button>
- 
+
               {/* ── Upload & AI Extraction ── */}
               <div style={{ marginTop: 10, borderTop: "1px solid #1a2235", paddingTop: 8 }}>
                 <div style={{ ...S.label, marginBottom: 6 }}>Documents & AI Extract</div>
@@ -1253,7 +565,7 @@ function GISView({ data, mob }) {
                   <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4" stroke="#007aff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#007aff" strokeWidth="1.5" strokeLinecap="round"/></svg>
                   UPLOAD (PDF, JPG, PNG, DOCX)
                 </button>
- 
+
                 {/* Uploaded files list */}
                 {(uploads[selectedAsset.id] || []).length > 0 && (
                   <div style={{ marginTop: 6 }}>
@@ -1268,7 +580,7 @@ function GISView({ data, mob }) {
                     ))}
                   </div>
                 )}
- 
+
                 {/* AI Processing indicator */}
                 {aiProcessing === selectedAsset.id && (
                   <div style={{ marginTop: 6, padding: "8px", background: "rgba(0,122,255,0.06)", border: "1px solid #007aff20", borderRadius: 4, textAlign: "center" }}>
@@ -1279,7 +591,7 @@ function GISView({ data, mob }) {
                     </div>
                   </div>
                 )}
- 
+
                 {/* AI Extracted Results */}
                 {aiResults[selectedAsset.id] && Object.entries(aiResults[selectedAsset.id]).map(([fileName, fields]) => (
                   <div key={fileName} style={{ marginTop: 6, border: "1px solid #007aff20", borderRadius: 4, overflow: "hidden" }}>
@@ -1303,7 +615,7 @@ function GISView({ data, mob }) {
             <div style={{ fontSize: 10, color: "#3a4a5e", padding: "16px 0", textAlign: "center" }}>Click any asset on the map</div>
           )}
         </div>
- 
+
         {/* Network Stats */}
         <div style={S.card}>
           <div style={S.glow("#ffb800")} />
@@ -1325,7 +637,7 @@ function GISView({ data, mob }) {
     </div>
   );
 }
- 
+
 // ─── NETWORK OVERVIEW ────────────────────────────────────────────────────
 function NetworkOverview({ data, mob }) {
   const totalLoad = data.feeders.reduce((s, f) => s + f.loadKw, 0);
@@ -1333,7 +645,7 @@ function NetworkOverview({ data, mob }) {
   const avgLoss = +(data.feeders.reduce((s, f) => s + f.lossPct, 0) / data.feeders.length).toFixed(1);
   const totalSolar = data.ders.filter(d => d.type === "solar").reduce((s, d) => s + d.powerKw, 0);
   const totalEv = data.ders.filter(d => d.type === "ev").reduce((s, d) => s + d.powerKw, 0);
- 
+
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: mob ? 8 : 12, marginBottom: 14 }}>
@@ -1403,7 +715,7 @@ function NetworkOverview({ data, mob }) {
     </div>
   );
 }
- 
+
 // ─── REAL-TIME MONITORING ────────────────────────────────────────────────
 function Monitoring({ data, feederHistory, mob }) {
   return (
@@ -1460,13 +772,13 @@ function Monitoring({ data, feederHistory, mob }) {
     </div>
   );
 }
- 
+
 // ─── ALERTS ──────────────────────────────────────────────────────────────
 function AlertsView({ alerts, mob }) {
   const [filter, setFilter] = useState("all");
   const filtered = filter === "all" ? alerts : alerts.filter(a => a.severity === filter);
   const counts = { critical: alerts.filter(a => a.severity === "critical").length, warning: alerts.filter(a => a.severity === "warning").length, insight: alerts.filter(a => a.severity === "insight").length };
- 
+
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: mob ? 8 : 10, marginBottom: 14 }}>
@@ -1506,7 +818,7 @@ function AlertsView({ alerts, mob }) {
     </div>
   );
 }
- 
+
 // ─── PREDICTIVE MODELLING ────────────────────────────────────────────────
 function PredictiveView({ data, mob }) {
   const hours = ["6PM", "7PM", "8PM", "9PM", "10PM", "11PM"];
@@ -1515,7 +827,7 @@ function PredictiveView({ data, mob }) {
   const solarForecast = [80, 30, 5, 0, 0, 0];
   const tempForecast = [38, 36, 34, 33, 32, 31];
   const peakT = data.transformers.reduce((a, b) => a.loadPct > b.loadPct ? a : b);
- 
+
   return (
     <div>
       <div style={{ ...S.card, borderColor: "#ffb80040", marginBottom: 12 }}>
@@ -1528,7 +840,7 @@ function PredictiveView({ data, mob }) {
           </div>
         </div>
       </div>
- 
+
       <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: 12 }}>
         <div style={S.card}>
           <div style={S.glow("#007aff")} /><div style={S.label}>EV Load Forecast</div>
@@ -1559,7 +871,7 @@ function PredictiveView({ data, mob }) {
           </div>
         </div>
       </div>
- 
+
       <div style={{ ...S.card, marginTop: 12 }}>
         <div style={S.glow("#ff3b5c")} />
         <div style={S.label}>Transformer Overload Risk — Next 6h</div>
@@ -1582,7 +894,7 @@ function PredictiveView({ data, mob }) {
           </tbody>
         </table>
       </div>
- 
+
       <div style={{ ...S.card, marginTop: 12 }}>
         <div style={S.glow("#007aff")} />
         <div style={S.label}>Historical EV Pattern (7-Day Avg)</div>
@@ -1602,7 +914,7 @@ function PredictiveView({ data, mob }) {
     </div>
   );
 }
- 
+
 // ─── DER MANAGEMENT ──────────────────────────────────────────────────────
 function DERView({ data, mob }) {
   const evAssets = data.ders.filter(d => d.type === "ev");
@@ -1611,7 +923,7 @@ function DERView({ data, mob }) {
   const totalSolar = solarAssets.reduce((s, d) => s + d.powerKw, 0);
   const totalLoad = data.feeders.reduce((s, f) => s + f.loadKw, 0);
   const netLoad = totalLoad - totalSolar;
- 
+
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: mob ? 8 : 10, marginBottom: 12 }}>
@@ -1678,7 +990,7 @@ function DERView({ data, mob }) {
     </div>
   );
 }
- 
+
 // ─── ASSET ANALYTICS (Half-hourly profiles, Solar split, EV detection) ───
 function AssetAnalytics({ asset, onBack, mob }) {
   // Generate 48 half-hourly data points (00:00 to 23:30)
@@ -1687,7 +999,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
     const m = i % 2 === 0 ? "00" : "30";
     return `${String(h).padStart(2, "0")}:${m}`;
   }), []);
- 
+
   // Simulated consumption profile based on asset type
   const profile = useMemo(() => {
     const baseLoad = asset.capacityKva || asset.capacity || asset.maxKw || asset.count * 0.8 || 100;
@@ -1701,7 +1013,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
       const mult = Math.max(nightBase, morningPeak, afternoon, eveningPeak);
       return Math.round(baseLoad * mult * rand(0.9, 1.1));
     });
- 
+
     // Solar generation (only for homes/transformers/feeders)
     const hasSolar = asset.assetType !== "ev_charger" && asset.assetType !== "ev_park";
     const solarCap = hasSolar ? baseLoad * rand(0.15, 0.35) : 0;
@@ -1710,7 +1022,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
       if (h < 6 || h > 18 || !hasSolar) return 0;
       return Math.round(solarCap * Math.sin(((h - 6) / 12) * Math.PI) * rand(0.7, 1.0));
     });
- 
+
     // EV spikes — inject 2-3 random charging events
     const evSpikes = [];
     const evSpikeIndices = new Set();
@@ -1725,29 +1037,29 @@ function AssetAnalytics({ asset, onBack, mob }) {
         if (d === 0) evSpikes.push({ idx: startIdx, power: spikePower, time: timeLabels[startIdx], duration: duration * 0.5 });
       }
     }
- 
+
     const netConsumption = consumption.map((c, i) => Math.max(0, c - solar[i]));
     const peakIdx = consumption.indexOf(Math.max(...consumption));
     const peakKva = Math.max(...consumption);
     const avgKva = Math.round(consumption.reduce((a, b) => a + b, 0) / 48);
     const totalSolar = solar.reduce((a, b) => a + b, 0);
- 
+
     return { consumption, solar, netConsumption, evSpikes, evSpikeIndices, peakIdx, peakKva, avgKva, totalSolar, hasSolar };
   }, [asset.id]);
- 
+
   const maxVal = Math.max(...profile.consumption, ...profile.solar);
   const chartW = mob ? 300 : 700;
   const chartH = 140;
   const barW = chartW / 48 * 0.7;
   const barGap = chartW / 48 * 0.3;
- 
+
   return (
     <div>
       {/* Back button */}
       <button onClick={onBack} style={{ background: "none", border: "1px solid #1a2235", borderRadius: 4, color: "#5a6e83", fontSize: 9, padding: "4px 10px", cursor: "pointer", fontFamily: "inherit", marginBottom: 10, display: "flex", alignItems: "center", gap: 4 }}>
         ← Back to Map
       </button>
- 
+
       {/* Asset Header */}
       <div style={S.card}>
         <div style={S.glow("#00e5a0")} />
@@ -1761,7 +1073,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
           </div>
         </div>
       </div>
- 
+
       {/* KPI Strip */}
       <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 8, marginTop: 10 }}>
         {[
@@ -1773,7 +1085,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
           <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={{ ...S.bigNum, fontSize: 22 }}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
         ))}
       </div>
- 
+
       {/* Half-Hourly Consumption Chart */}
       <div style={{ ...S.card, marginTop: 10, overflowX: "auto" }}>
         <div style={S.glow("#00e5a0")} />
@@ -1831,7 +1143,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
           })}
         </svg>
       </div>
- 
+
       {/* Solar vs Consumption Breakdown (for assets with solar) */}
       {profile.hasSolar && (
         <div style={{ ...S.card, marginTop: 10 }}>
@@ -1868,7 +1180,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
           </div>
         </div>
       )}
- 
+
       {/* EV Charging Detection */}
       {profile.evSpikes.length > 0 && (
         <div style={{ ...S.card, marginTop: 10, borderColor: "#ff3b5c30" }}>
@@ -1893,7 +1205,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
           </div>
         </div>
       )}
- 
+
       {/* Net Demand Profile */}
       <div style={{ ...S.card, marginTop: 10 }}>
         <div style={S.glow("#007aff")} />
@@ -1924,7 +1236,7 @@ function AssetAnalytics({ asset, onBack, mob }) {
     </div>
   );
 }
- 
+
 // ─── MAIN APP ────────────────────────────────────────────────────────────
 function SankhyaGridApp() {
   const [tab, setTab] = useState("gis");
@@ -1932,7 +1244,7 @@ function SankhyaGridApp() {
   const [alerts, setAlerts] = useState([]);
   const feederHistory = useHistory(data.feeders, "loadPct");
   const mob = useIsMobile();
- 
+
   useEffect(() => {
     const iv = setInterval(() => {
       const d = generateLiveData(new Date().getHours());
@@ -1942,7 +1254,7 @@ function SankhyaGridApp() {
     setAlerts(generateAlerts(data));
     return () => clearInterval(iv);
   }, []);
- 
+
   const critCount = alerts.filter(a => a.severity === "critical").length;
   const tabs = [
     { key: "gis", label: "GIS View" },
@@ -1952,7 +1264,7 @@ function SankhyaGridApp() {
     { key: "predictive", label: "Predictive" },
     { key: "der", label: "DER" },
   ];
- 
+
   return (
     <div style={S.app}>
       <style>{`
@@ -1999,9 +1311,8 @@ function SankhyaGridApp() {
     </div>
   );
 }
- 
+
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(SankhyaGridApp));
 </script>
 </body>
 </html>
- 

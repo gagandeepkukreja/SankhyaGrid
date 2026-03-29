@@ -58,6 +58,15 @@ const HOMES = [
   { id: "H-05", name: "Bhilai Sec 6 Flats", transformerId: "T-108", lat: 21.199, lng: 81.296, count: 300 },
 ];
 
+const INDUSTRIES = [
+  { id: "IND-01", name: "Bhilai Steel Plant (SAIL)", feederId: "F-04", type: "steel", contractDemand: 5000, lat: 21.193, lng: 81.298, solarCapacity: 500 },
+  { id: "IND-02", name: "NTPC Korba Thermal Station", feederId: "F-03", type: "power_gen", contractDemand: 2000, lat: 22.358, lng: 82.675, solarCapacity: 200 },
+  { id: "IND-03", name: "Raipur Industrial Area (MSME Cluster)", feederId: "F-01", type: "msme", contractDemand: 1200, lat: 21.265, lng: 81.618, solarCapacity: 80 },
+  { id: "IND-04", name: "ACC Cement Jamul", feederId: "F-04", type: "cement", contractDemand: 3500, lat: 21.185, lng: 81.275, solarCapacity: 300 },
+  { id: "IND-05", name: "Bilaspur Rice Mills Cluster", feederId: "F-02", type: "agro", contractDemand: 800, lat: 22.088, lng: 82.138, solarCapacity: 50 },
+  { id: "IND-06", name: "Siltara Industrial Park", feederId: "F-01", type: "mixed", contractDemand: 2500, lat: 21.270, lng: 81.645, solarCapacity: 150 },
+];
+
 const DER_ASSETS = [
   { id: "EV-01", type: "ev", subtype: "charger", name: "EV Hub Shankar Nagar", transformerId: "T-101", maxKw: 50, lat: 21.260, lng: 81.628 },
   { id: "EV-02", type: "ev", subtype: "charger", name: "EV Station Civil Lines", transformerId: "T-102", maxKw: 120, lat: 21.256, lng: 81.637 },
@@ -72,42 +81,50 @@ const DER_ASSETS = [
 // ─── Telemetry Device Marketplace Catalog ────────────────────────────────
 const DEVICES = [
   // Home / Consumer meters
-  { id: "DEV-01", name: "Genus Prima HHU Smart Meter", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM", communication: "RF Mesh + GPRS", accuracy: "Class 1.0", features: "Half-hourly kWh/kVAh, tamper detection, prepaid/postpaid, remote disconnect", supplier: "Genus Power Infrastructures", origin: "India", price: 2800, image: "📟" },
-  { id: "DEV-02", name: "HPL Socomec Single Phase Meter", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM", communication: "NB-IoT", accuracy: "Class 1.0", features: "Half-hourly profiling, load survey, net metering ready, event logging", supplier: "HPL Electric & Power", origin: "India", price: 2200, image: "📟" },
-  { id: "DEV-03", name: "Secure Meters Liberty CT", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM over IS 16444", communication: "RF Mesh 865 MHz", accuracy: "Class 0.5s", features: "ToD billing, 30-min load profile, magnetic tamper, power quality", supplier: "Secure Meters Ltd", origin: "India (Udaipur)", price: 3100, image: "📟" },
-  { id: "DEV-04", name: "L&T EM101 Three Phase Meter", category: "Smart Meter", assetTags: ["home", "ev_charger"], protocol: "DLMS/COSEM", communication: "4G LTE", accuracy: "Class 0.5s", features: "Demand recording, harmonic measurement, 8 tariff zones, event log 1000+", supplier: "L&T Electrical & Automation", origin: "India", price: 4500, image: "📟" },
+  { id: "DEV-01", name: "Genus Prima HHU Smart Meter", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM", communication: "RF Mesh + GPRS", accuracy: "Class 1.0", features: "Half-hourly kWh/kVAh, tamper detection, prepaid/postpaid, remote disconnect", supplier: "Genus Power Infrastructures", origin: "India", price: 2800, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
+  { id: "DEV-02", name: "HPL Socomec Single Phase Meter", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM", communication: "NB-IoT", accuracy: "Class 1.0", features: "Half-hourly profiling, load survey, net metering ready, event logging", supplier: "HPL Electric & Power", origin: "India", price: 2200, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
+  { id: "DEV-03", name: "Secure Meters Liberty CT", category: "Smart Meter", assetTags: ["home"], protocol: "DLMS/COSEM over IS 16444", communication: "RF Mesh 865 MHz", accuracy: "Class 0.5s", features: "ToD billing, 30-min load profile, magnetic tamper, power quality", supplier: "Secure Meters Ltd", origin: "India (Udaipur)", price: 3100, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
+  { id: "DEV-04", name: "L&T EM101 Three Phase Meter", category: "Smart Meter", assetTags: ["home", "ev_charger"], protocol: "DLMS/COSEM", communication: "4G LTE", accuracy: "Class 0.5s", features: "Demand recording, harmonic measurement, 8 tariff zones, event log 1000+", supplier: "L&T Electrical & Automation", origin: "India", price: 4500, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
   
   // Transformer monitoring
-  { id: "DEV-05", name: "Kappa Optronics DT Monitor", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "Modbus RTU/TCP", communication: "4G + LoRa", accuracy: "Class 0.5", features: "Oil temp, load (kVA), voltage, THD, tilt sensor, oil level, GPS", supplier: "Kappa Optronics", origin: "India", price: 18500, image: "🔌" },
-  { id: "DEV-06", name: "Elcomponics DT Health Sensor", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "IEC 61850 MMS", communication: "GPRS/3G", accuracy: "Class 1.0", features: "Winding temp, bushing current, DGA (optional), overload alarm", supplier: "Elcomponics", origin: "India (Noida)", price: 22000, image: "🔌" },
-  { id: "DEV-07", name: "IntelliSmart DTR Unit", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "DLMS + Modbus", communication: "RF Mesh + GPRS", accuracy: "Class 0.5s", features: "V/I/PF/kW per phase, neutral current, tamper, temperature, energy audit", supplier: "IntelliSmart Infra", origin: "India (Gurugram)", price: 15000, image: "🔌" },
+  { id: "DEV-05", name: "Kappa Optronics DT Monitor", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "Modbus RTU/TCP", communication: "4G + LoRa", accuracy: "Class 0.5", features: "Oil temp, load (kVA), voltage, THD, tilt sensor, oil level, GPS", supplier: "Kappa Optronics", origin: "India", price: 18500, image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=100&h=100&fit=crop" },
+  { id: "DEV-06", name: "Elcomponics DT Health Sensor", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "IEC 61850 MMS", communication: "GPRS/3G", accuracy: "Class 1.0", features: "Winding temp, bushing current, DGA (optional), overload alarm", supplier: "Elcomponics", origin: "India (Noida)", price: 22000, image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=100&h=100&fit=crop" },
+  { id: "DEV-07", name: "IntelliSmart DTR Unit", category: "Transformer Monitor", assetTags: ["transformer"], protocol: "DLMS + Modbus", communication: "RF Mesh + GPRS", accuracy: "Class 0.5s", features: "V/I/PF/kW per phase, neutral current, tamper, temperature, energy audit", supplier: "IntelliSmart Infra", origin: "India (Gurugram)", price: 15000, image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=100&h=100&fit=crop" },
   
   // Feeder monitoring
-  { id: "DEV-08", name: "Schneider Easergy P3 Relay", category: "Feeder Protection Relay", assetTags: ["feeder", "substation"], protocol: "IEC 61850 + DNP3", communication: "Ethernet + RS-485", accuracy: "Class 0.2", features: "Overcurrent, earth fault, auto-reclose, disturbance recorder, FLISR ready", supplier: "Schneider Electric India", origin: "MFG India (Bengaluru)", price: 85000, image: "⚡" },
-  { id: "DEV-09", name: "ABB REF615 Feeder IED", category: "Feeder Protection Relay", assetTags: ["feeder", "substation"], protocol: "IEC 61850 GOOSE", communication: "Fiber + Ethernet", accuracy: "Class 0.2s", features: "Directional OC/EF, breaker failure, fault locator, power quality", supplier: "ABB India (Hitachi Energy)", origin: "MFG India (Vadodara)", price: 120000, image: "⚡" },
-  { id: "DEV-10", name: "Genus FPI (Fault Passage Indicator)", category: "Fault Detector", assetTags: ["feeder"], protocol: "Modbus RTU", communication: "LoRa + GPRS", accuracy: "N/A", features: "Short circuit detection, earth fault, auto-reset, LED + remote alarm", supplier: "Genus Power", origin: "India", price: 12000, image: "🚨" },
+  { id: "DEV-08", name: "Schneider Easergy P3 Relay", category: "Feeder Protection Relay", assetTags: ["feeder", "substation"], protocol: "IEC 61850 + DNP3", communication: "Ethernet + RS-485", accuracy: "Class 0.2", features: "Overcurrent, earth fault, auto-reclose, disturbance recorder, FLISR ready", supplier: "Schneider Electric India", origin: "MFG India (Bengaluru)", price: 85000, image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=100&h=100&fit=crop" },
+  { id: "DEV-09", name: "ABB REF615 Feeder IED", category: "Feeder Protection Relay", assetTags: ["feeder", "substation"], protocol: "IEC 61850 GOOSE", communication: "Fiber + Ethernet", accuracy: "Class 0.2s", features: "Directional OC/EF, breaker failure, fault locator, power quality", supplier: "ABB India (Hitachi Energy)", origin: "MFG India (Vadodara)", price: 120000, image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=100&h=100&fit=crop" },
+  { id: "DEV-10", name: "Genus FPI (Fault Passage Indicator)", category: "Fault Detector", assetTags: ["feeder"], protocol: "Modbus RTU", communication: "LoRa + GPRS", accuracy: "N/A", features: "Short circuit detection, earth fault, auto-reset, LED + remote alarm", supplier: "Genus Power", origin: "India", price: 12000, image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=100&h=100&fit=crop" },
   
   // Substation
-  { id: "DEV-11", name: "Siemens SICAM RTU A8000", category: "Remote Terminal Unit", assetTags: ["substation"], protocol: "IEC 60870-5-104 + DNP3", communication: "Fiber + 4G fallback", accuracy: "Class 0.2", features: "Up to 2000 I/O, cybersecurity IEC 62351, redundant comms, GPS sync", supplier: "Siemens India", origin: "Germany / India assembly", price: 350000, image: "🖥️" },
-  { id: "DEV-12", name: "BEL RTU Mark-IV", category: "Remote Terminal Unit", assetTags: ["substation"], protocol: "IEC 60870-5-101/104", communication: "Fiber + VSAT", accuracy: "Class 0.5", features: "Made for Indian grid, 512 DI/DO, tested by CEA, rugged enclosure", supplier: "Bharat Electronics Ltd", origin: "India (Bengaluru)", price: 180000, image: "🖥️" },
+  { id: "DEV-11", name: "Siemens SICAM RTU A8000", category: "Remote Terminal Unit", assetTags: ["substation"], protocol: "IEC 60870-5-104 + DNP3", communication: "Fiber + 4G fallback", accuracy: "Class 0.2", features: "Up to 2000 I/O, cybersecurity IEC 62351, redundant comms, GPS sync", supplier: "Siemens India", origin: "Germany / India assembly", price: 350000, image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&h=100&fit=crop" },
+  { id: "DEV-12", name: "BEL RTU Mark-IV", category: "Remote Terminal Unit", assetTags: ["substation"], protocol: "IEC 60870-5-101/104", communication: "Fiber + VSAT", accuracy: "Class 0.5", features: "Made for Indian grid, 512 DI/DO, tested by CEA, rugged enclosure", supplier: "Bharat Electronics Ltd", origin: "India (Bengaluru)", price: 180000, image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&h=100&fit=crop" },
   
   // Solar
-  { id: "DEV-13", name: "Fronius Smart Meter TS 65A", category: "Solar Inverter Meter", assetTags: ["solar"], protocol: "Modbus RTU/SunSpec", communication: "RS-485 + WiFi", accuracy: "Class 0.5", features: "Bidirectional, net metering, real-time export/import, 3-phase", supplier: "Fronius India", origin: "Austria / India dist.", price: 8500, image: "☀️" },
-  { id: "DEV-14", name: "Tata Power Solar Edge Monitor", category: "Solar Monitor", assetTags: ["solar", "home"], protocol: "SunSpec + REST API", communication: "WiFi + Cellular", accuracy: "String-level", features: "Panel-level monitoring, shade detection, IV curve, cloud dashboard", supplier: "Tata Power Solar", origin: "India (Bengaluru)", price: 6000, image: "☀️" },
+  { id: "DEV-13", name: "Fronius Smart Meter TS 65A", category: "Solar Inverter Meter", assetTags: ["solar"], protocol: "Modbus RTU/SunSpec", communication: "RS-485 + WiFi", accuracy: "Class 0.5", features: "Bidirectional, net metering, real-time export/import, 3-phase", supplier: "Fronius India", origin: "Austria / India dist.", price: 8500, image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&h=100&fit=crop" },
+  { id: "DEV-14", name: "Tata Power Solar Edge Monitor", category: "Solar Monitor", assetTags: ["solar", "home"], protocol: "SunSpec + REST API", communication: "WiFi + Cellular", accuracy: "String-level", features: "Panel-level monitoring, shade detection, IV curve, cloud dashboard", supplier: "Tata Power Solar", origin: "India (Bengaluru)", price: 6000, image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&h=100&fit=crop" },
   
   // EV
-  { id: "DEV-15", name: "Delta ACBR EV Charger + Meter", category: "EV Charger with Telemetry", assetTags: ["ev_charger", "ev_park"], protocol: "OCPP 1.6J", communication: "4G + Ethernet", accuracy: "MID certified", features: "7.4-22 kW, smart scheduling, load balancing, RFID, mobile app", supplier: "Delta Electronics India", origin: "India (Gurugram)", price: 95000, image: "🔋" },
-  { id: "DEV-16", name: "Exicom Harmony DC Fast Charger", category: "DC Fast Charger", assetTags: ["ev_park"], protocol: "OCPP 2.0 + Modbus", communication: "4G + Ethernet", accuracy: "Class 1.0", features: "30-60 kW, CCS2 + CHAdeMO, remote diagnostics, payment integration", supplier: "Exicom Tele-Systems", origin: "India (Gurugram)", price: 850000, image: "🔋" },
+  { id: "DEV-15", name: "Delta ACBR EV Charger + Meter", category: "EV Charger with Telemetry", assetTags: ["ev_charger", "ev_park"], protocol: "OCPP 1.6J", communication: "4G + Ethernet", accuracy: "MID certified", features: "7.4-22 kW, smart scheduling, load balancing, RFID, mobile app", supplier: "Delta Electronics India", origin: "India (Gurugram)", price: 95000, image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=100&h=100&fit=crop" },
+  { id: "DEV-16", name: "Exicom Harmony DC Fast Charger", category: "DC Fast Charger", assetTags: ["ev_park"], protocol: "OCPP 2.0 + Modbus", communication: "4G + Ethernet", accuracy: "Class 1.0", features: "30-60 kW, CCS2 + CHAdeMO, remote diagnostics, payment integration", supplier: "Exicom Tele-Systems", origin: "India (Gurugram)", price: 850000, image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=100&h=100&fit=crop" },
   
   // Gateway / Edge
-  { id: "DEV-17", name: "Agsartech Edge Gateway EG-200", category: "IoT Edge Gateway", assetTags: ["transformer", "feeder", "substation"], protocol: "Modbus + DLMS + MQTT", communication: "4G + LoRa + WiFi", accuracy: "N/A", features: "Edge computing, protocol conversion, local storage 32GB, OTA updates", supplier: "Agsartech", origin: "India (Pune)", price: 28000, image: "📡" },
-  { id: "DEV-18", name: "CalixSmith DCU (Data Concentrator)", category: "Data Concentrator", assetTags: ["transformer", "home"], protocol: "DLMS + RF Mesh", communication: "GPRS/4G uplink", accuracy: "N/A", features: "Collects from 500+ meters, store & forward, IS 16444, RDSS compliant", supplier: "Calixsmith Technologies", origin: "India", price: 35000, image: "📡" },
+  { id: "DEV-17", name: "Agsartech Edge Gateway EG-200", category: "IoT Edge Gateway", assetTags: ["transformer", "feeder", "substation"], protocol: "Modbus + DLMS + MQTT", communication: "4G + LoRa + WiFi", accuracy: "N/A", features: "Edge computing, protocol conversion, local storage 32GB, OTA updates", supplier: "Agsartech", origin: "India (Pune)", price: 28000, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
+  { id: "DEV-18", name: "CalixSmith DCU (Data Concentrator)", category: "Data Concentrator", assetTags: ["transformer", "home"], protocol: "DLMS + RF Mesh", communication: "GPRS/4G uplink", accuracy: "N/A", features: "Collects from 500+ meters, store & forward, IS 16444, RDSS compliant", supplier: "Calixsmith Technologies", origin: "India", price: 35000, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=100&h=100&fit=crop" },
+
+  // Industry / IPP devices
+  { id: "DEV-19", name: "Secure Trivector HT Meter", category: "HT Industrial Meter", assetTags: ["industry"], protocol: "DLMS/COSEM + IEC 62056", communication: "RS-485 + 4G", accuracy: "Class 0.2s", features: "HT/EHT metering, 30-min load profile, MDI, ToD 8-zone, demand recording, ABT ready", supplier: "Secure Meters Ltd", origin: "India (Udaipur)", price: 45000, image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=100&h=100&fit=crop" },
+  { id: "DEV-20", name: "L&T EMTP Three Phase CT/PT Meter", category: "HT Industrial Meter", assetTags: ["industry", "feeder"], protocol: "DLMS/COSEM", communication: "Ethernet + 4G", accuracy: "Class 0.2s", features: "CT/PT operated, 4-quadrant metering, harmonic analysis, 2000 events, ABT/ToD", supplier: "L&T Electrical & Automation", origin: "India", price: 55000, image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=100&h=100&fit=crop" },
+  { id: "DEV-21", name: "Schneider ION8800 Revenue Meter", category: "Revenue Grade Meter", assetTags: ["industry", "substation"], protocol: "IEC 61850 + Modbus TCP", communication: "Ethernet + Fiber", accuracy: "Class 0.1", features: "Revenue grade, PQ analyzer, waveform capture, compliance logging, SCADA integration", supplier: "Schneider Electric India", origin: "MFG India", price: 185000, image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=100&h=100&fit=crop" },
+  { id: "DEV-22", name: "Genus IPP Solar Generation Meter", category: "Solar Generation Meter", assetTags: ["industry", "solar"], protocol: "DLMS + SunSpec Modbus", communication: "4G + RS-485", accuracy: "Class 0.5s", features: "Bidirectional, net/gross metering, solar export tracking, grid injection monitoring", supplier: "Genus Power Infrastructures", origin: "India", price: 18000, image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&h=100&fit=crop" },
+  { id: "DEV-23", name: "Socomec DIRIS A40 Power Analyzer", category: "Industrial Power Analyzer", assetTags: ["industry"], protocol: "Modbus RTU/TCP + BACnet", communication: "Ethernet + RS-485", accuracy: "Class 0.5", features: "96 params, THD per harmonic, demand management, alarm relay, energy audit", supplier: "Socomec India", origin: "France / India assembly", price: 32000, image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=100&h=100&fit=crop" },
+  { id: "DEV-24", name: "Rishabh RE-DLG Data Logger", category: "Industrial Data Logger", assetTags: ["industry", "transformer", "feeder"], protocol: "Modbus RTU + MQTT", communication: "4G + WiFi + Ethernet", accuracy: "N/A", features: "32-channel analog, edge computing, OPC-UA, cloud push, industrial DIN rail", supplier: "Rishabh Instruments", origin: "India (Nashik)", price: 42000, image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&h=100&fit=crop" },
 ];
 
 // Map asset types to device tags
 const ASSET_TO_DEVICE_TAG = {
   substation: "substation", feeder: "feeder", transformer: "transformer",
-  home: "home", ev_charger: "ev_charger", ev_park: "ev_park", solar: "solar",
+  home: "home", industry: "industry", ev_charger: "ev_charger", ev_park: "ev_park", solar: "solar",
 };
 
 // ─── Utility ─────────────────────────────────────────────────────────────
@@ -154,7 +171,15 @@ function generateLiveData(hour) {
 
   const homes = HOMES.map(h => ({ ...h, demandKw: Math.round(h.count * rand(0.3, 1.2)), avgVoltage: +(230 * rand(0.92, 1.08)).toFixed(0), dataHealth: Math.random() > 0.2 ? "live" : "stale" }));
 
-  return { feeders, transformers, ders, homes, timestamp: new Date() };
+  const industries = INDUSTRIES.map(ind => {
+    const indLoadMult = isPeak ? rand(0.7, 0.95) : rand(0.5, 0.85);
+    const demandKw = Math.round(ind.contractDemand * indLoadMult);
+    const solarGen = Math.round(ind.solarCapacity * solarMult * rand(0.6, 0.95));
+    const pf = +rand(0.88, 0.98).toFixed(2);
+    return { ...ind, demandKw, solarGen, netDemand: demandKw - solarGen, loadPct: Math.round((demandKw / ind.contractDemand) * 100), pf, voltage: +(33 * rand(0.96, 1.04)).toFixed(1), dataHealth: Math.random() > 0.08 ? "live" : "stale" };
+  });
+
+  return { feeders, transformers, ders, homes, industries, timestamp: new Date() };
 }
 
 function generateAlerts(data) {
@@ -229,6 +254,7 @@ const LEGEND = {
   feeder: { label: "Feeder", color: "#00e5a0" },
   transformer: { label: "Transformer", color: "#ffb800" },
   home: { label: "Homes / Consumers", color: "#8e7cc3" },
+  industry: { label: "Industry / IPP", color: "#ff6b35" },
   ev_charger: { label: "EV Charger", color: "#007aff" },
   ev_park: { label: "EV Charge Park", color: "#0055cc" },
   solar: { label: "Solar Inverter", color: "#ffb800" },
@@ -312,50 +338,100 @@ function GISView({ data, mob }) {
   const [aiResults, setAiResults] = useState({});
   const fileInputRef = useRef(null);
   const [analyticsAsset, setAnalyticsAsset] = useState(null);
-  const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 1000, h: 700 });
-  const [dragging, setDragging] = useState(null);
-  const svgRef = useRef(null);
-  const [hovered, setHovered] = useState(null);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markersRef = useRef([]);
+  const [leafletReady, setLeafletReady] = useState(false);
 
-  // Map geo coords to SVG space
-  const allLats = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lat);
-  const allLngs = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lng);
-  const minLat = Math.min(...allLats) - 0.02, maxLat = Math.max(...allLats) + 0.02;
-  const minLng = Math.min(...allLngs) - 0.02, maxLng = Math.max(...allLngs) + 0.02;
+  // Load Leaflet once
+  useEffect(() => {
+    if (mapInstance.current || !mapRef.current) return;
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link"); link.id = "leaflet-css"; link.rel = "stylesheet";
+      link.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"; document.head.appendChild(link);
+    }
+    const loadLeaflet = () => {
+      if (window.L) { initMap(); return; }
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+      script.onload = initMap; document.head.appendChild(script);
+    };
+    const initMap = () => {
+      const L = window.L;
+      const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([21.75, 81.95], 8);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+      // Dark tiles from CARTO, fallback to OSM
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19 }).addTo(map);
+      mapInstance.current = map; setLeafletReady(true);
+    };
+    loadLeaflet();
+    return () => { if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; } };
+  }, []);
 
-  const toSvg = (lat, lng) => ({
-    x: ((lng - minLng) / (maxLng - minLng)) * 900 + 50,
-    y: ((maxLat - lat) / (maxLat - minLat)) * 600 + 50,
-  });
+  // Update markers
+  useEffect(() => {
+    if (!leafletReady || !window.L || !mapInstance.current) return;
+    const L = window.L; const map = mapInstance.current;
+    markersRef.current.forEach(m => map.removeLayer(m)); markersRef.current = [];
 
-  // Pan
-  const onMouseDown = (e) => {
-    if (e.target.closest("[data-asset]")) return;
-    setDragging({ x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y });
-  };
-  const onMouseMove = (e) => {
-    if (!dragging) return;
-    const dx = (e.clientX - dragging.x) * (viewBox.w / svgRef.current.clientWidth);
-    const dy = (e.clientY - dragging.y) * (viewBox.h / svgRef.current.clientHeight);
-    setViewBox(v => ({ ...v, x: dragging.vx - dx, y: dragging.vy - dy }));
-  };
-  const onMouseUp = () => setDragging(null);
-  const onWheel = (e) => {
-    e.preventDefault();
-    const scale = e.deltaY > 0 ? 1.1 : 0.9;
-    setViewBox(v => {
-      const nw = v.w * scale, nh = v.h * scale;
-      return { x: v.x + (v.w - nw) / 2, y: v.y + (v.h - nh) / 2, w: nw, h: nh };
+    const mkIcon = (color, size, txt) => L.divIcon({
+      className: "", iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+      html: `<div style="width:${size}px;height:${size}px;border-radius:${size/2}px;background:${color};border:2px solid ${color};box-shadow:0 0 10px ${color}50;display:flex;align-items:center;justify-content:center;font-size:${Math.max(size*0.38,8)}px;color:#060a13;font-weight:800;font-family:monospace;cursor:pointer">${txt}</div>`,
     });
-  };
 
-  // Collect all visible assets for SVG
-  const ssPos = SUBSTATIONS.map(s => ({ ...s, ...toSvg(s.lat, s.lng), assetType: "substation", dataHealth: "live" }));
-  const fPos = data.feeders.map(f => ({ ...f, ...toSvg(f.lat, f.lng), assetType: "feeder" }));
-  const tPos = data.transformers.map(t => ({ ...t, ...toSvg(t.lat, t.lng), assetType: "transformer" }));
-  const hPos = data.homes.map(h => ({ ...h, ...toSvg(h.lat, h.lng), assetType: "home" }));
-  const evPos = data.ders.filter(d => d.type === "ev").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: d.subtype === "park" ? "ev_park" : "ev_charger" }));
-  const solPos = data.ders.filter(d => d.type === "solar").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: "solar" }));
+    // Substations
+    if (visibleLayers.substation) SUBSTATIONS.forEach(ss => {
+      const m = L.marker([ss.lat, ss.lng], { icon: mkIcon("#f0f4f8", 26, "SS") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...ss, assetType: "substation", dataHealth: "live" }));
+      markersRef.current.push(m);
+    });
+
+    // Feeders + lines
+    if (visibleLayers.feeder) data.feeders.forEach(f => {
+      const c = f.loadPct > 90 ? "#ff3b5c" : f.loadPct > 75 ? "#ffb800" : "#00e5a0";
+      const m = L.marker([f.lat, f.lng], { icon: mkIcon(c, 22, "F") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...f, assetType: "feeder" }));
+      markersRef.current.push(m);
+      const ss = SUBSTATIONS[0];
+      const ln = L.polyline([[ss.lat, ss.lng], [f.lat, f.lng]], { color: f.color, weight: 1.5, opacity: 0.4, dashArray: "5 5" }).addTo(map);
+      markersRef.current.push(ln);
+    });
+
+    // Transformers + lines
+    if (visibleLayers.transformer) data.transformers.forEach(t => {
+      const c = t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#ffb800";
+      const m = L.marker([t.lat, t.lng], { icon: mkIcon(c, 16, "T") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...t, assetType: "transformer" }));
+      markersRef.current.push(m);
+      const feeder = data.feeders.find(f => f.id === t.feederId);
+      if (feeder) { const ln = L.polyline([[feeder.lat, feeder.lng], [t.lat, t.lng]], { color: feeder.color, weight: 1, opacity: 0.25 }).addTo(map); markersRef.current.push(ln); }
+    });
+
+    // Homes
+    if (visibleLayers.home) data.homes.forEach(h => {
+      const m = L.marker([h.lat, h.lng], { icon: mkIcon("#8e7cc3", 13, "H") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...h, assetType: "home" }));
+      markersRef.current.push(m);
+    });
+
+    // EVs
+    data.ders.filter(d => d.type === "ev").forEach(d => {
+      const layerKey = d.subtype === "park" ? "ev_park" : "ev_charger";
+      if (!visibleLayers[layerKey]) return;
+      const c = d.status === "charging" ? "#007aff" : "#3a4a5e";
+      const m = L.marker([d.lat, d.lng], { icon: mkIcon(c, d.subtype === "park" ? 20 : 14, "EV") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...d, assetType: layerKey }));
+      markersRef.current.push(m);
+    });
+
+    // Solar
+    if (visibleLayers.solar) data.ders.filter(d => d.type === "solar").forEach(d => {
+      const c = d.status === "generating" ? "#ffb800" : "#3a4a5e";
+      const m = L.marker([d.lat, d.lng], { icon: mkIcon(c, 14, "☀") }).addTo(map)
+        .on("click", () => setSelectedAsset({ ...d, assetType: "solar" }));
+      markersRef.current.push(m);
+    });
+  }, [data, visibleLayers, leafletReady]);
 
   // If analytics view is active, show it instead of the map
   if (analyticsAsset) {
@@ -365,130 +441,11 @@ function GISView({ data, mob }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 270px", gap: 12, height: mob ? "auto" : "calc(100vh - 130px)" }}>
       <div style={{ ...S.card, padding: 0, overflow: "hidden", position: "relative", height: mob ? 350 : "auto" }}>
-        {/* SVG Map */}
-        <svg
-          ref={svgRef}
-          viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-          style={{ width: "100%", height: "100%", background: "#0a0f1c", cursor: dragging ? "grabbing" : "grab" }}
-          onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
-          onWheel={onWheel}
-        >
-          {/* Grid lines */}
-          {Array.from({ length: 20 }, (_, i) => {
-            const x = i * 55;
-            return <line key={`gv${i}`} x1={x} y1={0} x2={x} y2={800} stroke="#131b2e" strokeWidth="0.5" />;
-          })}
-          {Array.from({ length: 15 }, (_, i) => {
-            const y = i * 55;
-            return <line key={`gh${i}`} x1={0} y1={y} x2={1100} y2={y} stroke="#131b2e" strokeWidth="0.5" />;
-          })}
-
-          {/* Region labels */}
-          <text x="80" y="30" fill="#1a2235" fontSize="11" fontFamily="inherit" fontWeight="600">CHHATTISGARH DISTRIBUTION NETWORK</text>
-          {fPos.map(f => (
-            <text key={`lbl-${f.id}`} x={f.x} y={f.y - 18} fill="#1e2d42" fontSize="7" fontFamily="inherit" textAnchor="middle">{f.zone}</text>
-          ))}
-
-          {/* Connection lines: SS → Feeders */}
-          {visibleLayers.feeder && ssPos.map(ss => fPos.map(f => (
-            <line key={`ln-ss-${f.id}`} x1={ss.x} y1={ss.y} x2={f.x} y2={f.y} stroke={f.color} strokeWidth="1.5" strokeDasharray="6 4" opacity="0.35" />
-          )))}
-
-          {/* Connection lines: Feeder → Transformers */}
-          {visibleLayers.transformer && tPos.map(t => {
-            const f = fPos.find(f => f.id === t.feederId);
-            return f ? <line key={`ln-f-${t.id}`} x1={f.x} y1={f.y} x2={t.x} y2={t.y} stroke={f.color} strokeWidth="1" opacity="0.2" /> : null;
-          })}
-
-          {/* Connection lines: Transformer → children */}
-          {hPos.map(h => {
-            const t = tPos.find(t => t.id === h.transformerId);
-            return t && visibleLayers.home ? <line key={`ln-t-${h.id}`} x1={t.x} y1={t.y} x2={h.x} y2={h.y} stroke="#8e7cc3" strokeWidth="0.5" opacity="0.15" /> : null;
-          })}
-          {[...evPos, ...solPos].map(d => {
-            const t = tPos.find(t => t.id === d.transformerId);
-            const show = d.assetType === "solar" ? visibleLayers.solar : visibleLayers[d.assetType];
-            return t && show ? <line key={`ln-d-${d.id}`} x1={t.x} y1={t.y} x2={d.x} y2={d.y} stroke={d.type === "ev" ? "#007aff" : "#ffb800"} strokeWidth="0.5" opacity="0.15" /> : null;
-          })}
-
-          {/* Substations */}
-          {visibleLayers.substation && ssPos.map(s => (
-            <g key={s.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(s)} onMouseEnter={() => setHovered(s.id)} onMouseLeave={() => setHovered(null)}>
-              <rect x={s.x - 16} y={s.y - 16} width={32} height={32} rx={6} fill="#f0f4f8" opacity={0.15} stroke="#f0f4f8" strokeWidth={selectedAsset?.id === s.id ? 2.5 : 1.5} />
-              {hovered === s.id && <rect x={s.x - 18} y={s.y - 18} width={36} height={36} rx={7} fill="none" stroke="#f0f4f8" strokeWidth="0.5" opacity="0.4" />}
-              <text x={s.x} y={s.y + 4} textAnchor="middle" fill="#f0f4f8" fontSize="9" fontWeight="800" fontFamily="inherit">SS</text>
-              <text x={s.x} y={s.y + 26} textAnchor="middle" fill="#5a6e83" fontSize="6" fontFamily="inherit">132kV Sub</text>
-            </g>
-          ))}
-
-          {/* Feeders */}
-          {visibleLayers.feeder && fPos.map(f => {
-            const c = f.loadPct > 90 ? "#ff3b5c" : f.loadPct > 75 ? "#ffb800" : "#00e5a0";
-            return (
-              <g key={f.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(f)} onMouseEnter={() => setHovered(f.id)} onMouseLeave={() => setHovered(null)}>
-                <circle cx={f.x} cy={f.y} r={hovered === f.id ? 16 : 14} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === f.id ? 2.5 : 1.5} />
-                {f.loadPct > 85 && <circle cx={f.x} cy={f.y} r={18} fill="none" stroke={c} strokeWidth="0.5" opacity="0.3" strokeDasharray="2 2"><animate attributeName="r" from="18" to="24" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" from="0.3" to="0" dur="2s" repeatCount="indefinite" /></circle>}
-                <text x={f.x} y={f.y + 3} textAnchor="middle" fill={c} fontSize="8" fontWeight="800" fontFamily="inherit">F</text>
-                <text x={f.x} y={f.y + 26} textAnchor="middle" fill="#5a6e83" fontSize="5.5" fontFamily="inherit">{f.name.replace("Feeder ", "")}</text>
-                <text x={f.x} y={f.y + 33} textAnchor="middle" fill={c} fontSize="5.5" fontWeight="700" fontFamily="inherit">{f.loadPct}%</text>
-              </g>
-            );
-          })}
-
-          {/* Transformers */}
-          {visibleLayers.transformer && tPos.map(t => {
-            const c = t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#ffb800";
-            return (
-              <g key={t.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(t)} onMouseEnter={() => setHovered(t.id)} onMouseLeave={() => setHovered(null)}>
-                <circle cx={t.x} cy={t.y} r={hovered === t.id ? 11 : 9} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === t.id ? 2 : 1} />
-                <text x={t.x} y={t.y + 3} textAnchor="middle" fill={c} fontSize="7" fontWeight="800" fontFamily="inherit">T</text>
-                <text x={t.x} y={t.y + 18} textAnchor="middle" fill="#3a5068" fontSize="4.5" fontFamily="inherit">{t.name.replace("DT ", "")}</text>
-              </g>
-            );
-          })}
-
-          {/* Homes */}
-          {visibleLayers.home && hPos.map(h => (
-            <g key={h.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(h)} onMouseEnter={() => setHovered(h.id)} onMouseLeave={() => setHovered(null)}>
-              <circle cx={h.x} cy={h.y} r={hovered === h.id ? 8 : 6} fill="#8e7cc320" stroke="#8e7cc3" strokeWidth={selectedAsset?.id === h.id ? 1.5 : 0.8} />
-              <text x={h.x} y={h.y + 2.5} textAnchor="middle" fill="#8e7cc3" fontSize="5.5" fontWeight="700" fontFamily="inherit">H</text>
-            </g>
-          ))}
-
-          {/* EV assets */}
-          {evPos.map(d => {
-            const show = d.assetType === "ev_park" ? visibleLayers.ev_park : visibleLayers.ev_charger;
-            if (!show) return null;
-            const c = d.status === "charging" ? "#007aff" : "#3a4a5e";
-            const r = d.subtype === "park" ? 10 : 7;
-            return (
-              <g key={d.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(d)} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
-                <circle cx={d.x} cy={d.y} r={hovered === d.id ? r + 2 : r} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === d.id ? 1.5 : 0.8} />
-                <text x={d.x} y={d.y + 2.5} textAnchor="middle" fill={c} fontSize={d.subtype === "park" ? "6" : "5"} fontWeight="800" fontFamily="inherit">EV</text>
-              </g>
-            );
-          })}
-
-          {/* Solar */}
-          {visibleLayers.solar && solPos.map(d => {
-            const c = d.status === "generating" ? "#ffb800" : "#3a4a5e";
-            return (
-              <g key={d.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(d)} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
-                <circle cx={d.x} cy={d.y} r={hovered === d.id ? 9 : 7} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === d.id ? 1.5 : 0.8} />
-                <text x={d.x} y={d.y + 2.5} textAnchor="middle" fill={c} fontSize="5" fontWeight="800" fontFamily="inherit">S</text>
-              </g>
-            );
-          })}
-
-          {/* Selected highlight ring */}
-          {selectedAsset && (() => {
-            const pos = [...ssPos, ...fPos, ...tPos, ...hPos, ...evPos, ...solPos].find(a => a.id === selectedAsset.id);
-            return pos ? <circle cx={pos.x} cy={pos.y} r={22} fill="none" stroke="#00e5a0" strokeWidth="1" strokeDasharray="3 3" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from={`0 ${pos.x} ${pos.y}`} to={`360 ${pos.x} ${pos.y}`} dur="8s" repeatCount="indefinite" /></circle> : null;
-          })()}
-        </svg>
+        {/* Leaflet Map */}
+        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
         {/* Legend overlay */}
-        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10, background: "#0d1320ee", borderRadius: 8, padding: 10, border: "1px solid #1a2235", maxWidth: 170 }}>
+        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 1000, background: `${S.t.bgCard}ee`, borderRadius: 8, padding: 10, border: `1px solid ${S.t.border}`, maxWidth: 170 }}>
           <div style={{ ...S.label, marginBottom: 5 }}>Asset Layers</div>
           {Object.entries(LEGEND).map(([key, val]) => (
             <label key={key} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, fontSize: 9, cursor: "pointer", color: visibleLayers[key] ? "#c8d6e5" : "#3a4a5e" }}>
@@ -582,7 +539,7 @@ function GISView({ data, mob }) {
                     {recommended.slice(0, 3).map(dev => (
                       <div key={dev.id} style={{ padding: "6px", background: S.t.bgInner, borderRadius: 5, marginBottom: 4, border: `1px solid ${S.t.border}` }}>
                         <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
-                          <div style={{ fontSize: 20, lineHeight: 1 }}>{dev.image}</div>
+                          <img src={dev.image} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: "cover" }} onError={(e) => { e.target.style.display = "none"; }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 9, fontWeight: 700, color: S.t.textBright, lineHeight: 1.2 }}>{dev.name}</div>
                             <div style={{ fontSize: 7, color: S.t.textDim, marginTop: 2 }}>{dev.category} • {dev.protocol}</div>
@@ -1404,8 +1361,8 @@ function Marketplace({ mob }) {
               
               {/* Device Image + Name */}
               <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 8, background: S.t.bgInner, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0 }}>
-                  {dev.image}
+                <div style={{ width: 48, height: 48, borderRadius: 8, background: S.t.bgInner, overflow: "hidden", flexShrink: 0 }}>
+                  <img src={dev.image} alt={dev.name} style={{ width: 48, height: 48, objectFit: "cover" }} onError={(e) => { e.target.style.display = "none"; e.target.parentNode.innerHTML = '<div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:20px">📦</div>'; }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: S.t.textBright, lineHeight: 1.3 }}>{dev.name}</div>
@@ -1479,6 +1436,7 @@ function SankhyaGridApp() {
   const feederHistory = useHistory(data.feeders, "loadPct");
   const mob = useIsMobile();
   const [theme, setTheme] = useState("dark");
+  const [sector, setSector] = useState("distribution");
   S = makeStyles(THEMES[theme]);
   const t = S.t;
 
@@ -1514,6 +1472,8 @@ function SankhyaGridApp() {
         ::-webkit-scrollbar-thumb { background:${t.border}; border-radius:3px }
         button:hover { filter:brightness(1.1) }
         tr:hover td { background:${t.green}08 }
+        .leaflet-control-zoom a { background: ${t.bgCard} !important; color: ${t.text} !important; border-color: ${t.border} !important; }
+        .leaflet-bar { border: 1px solid ${t.border} !important; }
       `}</style>
       <header style={S.header}>
         <div style={S.logo}>
@@ -1522,7 +1482,7 @@ function SankhyaGridApp() {
           </div>
           <div>
             <div style={{ fontSize: mob ? 12 : 15, fontWeight: 700, letterSpacing: 1.5, color: t.textBright }}>SANKHYAGRID{!mob && <span style={{ fontSize: 11, color: t.textDim, fontWeight: 400, marginLeft: 6 }}>सांख्य</span>}</div>
-            {!mob && <div style={{ fontSize: 8, color: t.textDim, letterSpacing: 2, textTransform: "uppercase" }}>Distribution Intelligence Platform</div>}
+            {!mob && <div style={{ fontSize: 8, color: t.textDim, letterSpacing: 2, textTransform: "uppercase" }}>Grid Intelligence Platform</div>}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: mob ? 6 : 12 }}>
@@ -1539,6 +1499,46 @@ function SankhyaGridApp() {
           </button>
         </div>
       </header>
+
+      {/* Sector Mode Bar */}
+      <div style={{ display: "flex", alignItems: "center", background: t.bgHeader, borderBottom: `1px solid ${t.border}`, padding: mob ? "6px 8px" : "6px 20px", gap: mob ? 4 : 8 }}>
+        {[
+          { key: "generation", label: "Generation", icon: "⚡", color: "#ffb800" },
+          { key: "transmission", label: "Transmission", icon: "🔗", color: "#8e7cc3" },
+          { key: "distribution", label: "Distribution", icon: "🔌", color: "#00e5a0" },
+        ].map(s => {
+          const isActive = sector === s.key;
+          const isAvailable = s.key === "distribution";
+          return (
+            <button
+              key={s.key}
+              onClick={() => isAvailable && setSector(s.key)}
+              style={{
+                display: "flex", alignItems: "center", gap: 5,
+                padding: mob ? "6px 10px" : "7px 16px",
+                fontSize: mob ? 9 : 11, fontWeight: isActive ? 800 : 600,
+                fontFamily: "inherit", cursor: isAvailable ? "pointer" : "default",
+                letterSpacing: 0.5,
+                background: isActive ? `${s.color}15` : "transparent",
+                color: isActive ? s.color : isAvailable ? t.textDim : `${t.textMuted}80`,
+                border: isActive ? `1.5px solid ${s.color}40` : `1px solid ${t.border}`,
+                borderRadius: 6,
+                position: "relative",
+                opacity: isAvailable ? 1 : 0.6,
+                transition: "all 0.2s",
+              }}
+            >
+              <span>{s.icon}</span>
+              <span>{s.label}</span>
+              {!isAvailable && <span style={{ fontSize: 7, color: t.textMuted, background: `${t.textMuted}15`, padding: "1px 4px", borderRadius: 3, marginLeft: 2 }}>SOON</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Sector Content */}
+      {sector === "distribution" ? (
+        <>
       <nav style={{ ...S.nav, padding: mob ? "0 8px" : "0 20px" }}>
         {tabs.map(t => <button key={t.key} style={{ ...S.navBtn(tab === t.key), padding: mob ? "8px 10px" : "9px 14px", fontSize: mob ? 9 : 10 }} onClick={() => setTab(t.key)}>{t.label}</button>)}
       </nav>
@@ -1551,6 +1551,30 @@ function SankhyaGridApp() {
         {tab === "der" && <DERView data={data} mob={mob} />}
         {tab === "marketplace" && <Marketplace mob={mob} />}
       </main>
+        </>
+      ) : (
+        <main style={{ padding: mob ? 16 : 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{sector === "generation" ? "⚡" : "🔗"}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: t.textBright, marginBottom: 8 }}>
+              {sector === "generation" ? "Generation Intelligence" : "Transmission Intelligence"}
+            </div>
+            <div style={{ fontSize: 12, color: t.textDim, maxWidth: 400, lineHeight: 1.6, marginBottom: 20 }}>
+              {sector === "generation" 
+                ? "IPP monitoring, solar/wind farm SCADA, generation forecasting, merit order dispatch, PPA compliance tracking, and plant-level analytics."
+                : "Transmission network monitoring, substation automation, inter-state power flow, ISTS scheduling, protection coordination, and grid stability analytics."
+              }
+            </div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 20px", background: `${t.textMuted}10`, border: `1px solid ${t.border}`, borderRadius: 8, fontSize: 11, color: t.textDim }}>
+              <span style={{ fontSize: 14 }}>🚧</span>
+              Coming Soon — Under Development
+            </div>
+            <div style={{ marginTop: 16, fontSize: 9, color: t.textMuted }}>
+              Switch to <button onClick={() => setSector("distribution")} style={{ background: "none", border: "none", color: t.green, cursor: "pointer", fontFamily: "inherit", fontSize: 9, fontWeight: 700, textDecoration: "underline" }}>Distribution</button> to explore the live platform
+            </div>
+          </div>
+        </main>
+      )}
       <footer style={{ padding: "8px 20px", borderTop: `1px solid ${t.border}`, display: "flex", justifyContent: "center", fontSize: 9, color: t.textFaint }}>
         <span>with ❤️ made in India</span>
       </footer>

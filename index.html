@@ -27,55 +27,135 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-// ─── Asset Data with Real Coordinates (Chhattisgarh region) ──────────────
+// ─── Real Chhattisgarh Grid Data (from CSPTCL & KUSUM Component-A) ──────
+
+// 220/132kV Transmission Substations (CSPTCL grid map)
 const SUBSTATIONS = [
-  { id: "SS-01", name: "Substation Raipur 132kV", lat: 21.2514, lng: 81.6296, capacityMva: 50 },
+  { id: "SS-RPR", name: "220kV SS Raipur (Dharsiwa)", lat: 21.2800, lng: 81.6500, capacityMva: 320, voltage: "220/132kV", division: "Raipur" },
+  { id: "SS-KRB", name: "220kV SS Korba East", lat: 22.3500, lng: 82.6900, capacityMva: 280, voltage: "220/132kV", division: "Korba" },
+  { id: "SS-DRG", name: "132kV SS Durg (Bhilai)", lat: 21.1900, lng: 81.2850, capacityMva: 160, voltage: "132/33kV", division: "Durg" },
+  { id: "SS-BSP", name: "220kV SS Bilaspur", lat: 22.0800, lng: 82.1400, capacityMva: 250, voltage: "220/132kV", division: "Bilaspur" },
 ];
 
+// 33/11kV Distribution Substations (from KUSUM Component-A list)
 const FEEDERS = [
-  { id: "F-01", name: "Feeder Raipur-North", capacity: 800, zone: "Zone A", substationId: "SS-01", lat: 21.258, lng: 81.632, color: "#00e5a0" },
-  { id: "F-02", name: "Feeder Bilaspur-Central", capacity: 650, zone: "Zone A", substationId: "SS-01", lat: 22.080, lng: 82.135, color: "#007aff" },
-  { id: "F-03", name: "Feeder Korba-East", capacity: 720, zone: "Zone B", substationId: "SS-01", lat: 22.349, lng: 82.686, color: "#ffb800" },
-  { id: "F-04", name: "Feeder Durg-South", capacity: 550, zone: "Zone B", substationId: "SS-01", lat: 21.192, lng: 81.287, color: "#e056fd" },
+  // Raipur Division — real substations from KUSUM list
+  { id: "F-KARA", name: "33/11kV Kara", capacity: 3150, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.2650, lng: 81.6200, color: "#00e5a0", mva: 3.15, xmers: 1, solarHosting: "1.00 MWp", district: "Raipur", block: "Dharsiwa" },
+  { id: "F-SEON", name: "33/11kV Seonikala", capacity: 3150, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.2700, lng: 81.6350, color: "#00e5a0", mva: 3.15, xmers: 1, solarHosting: "1.00 MWp", district: "Raipur", block: "Dharsiwa" },
+  { id: "F-MANA", name: "33/11kV Mana", capacity: 5000, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.2550, lng: 81.6550, color: "#00e5a0", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Raipur", block: "Dharsiwa" },
+  { id: "F-DHAR", name: "33/11kV Dharsiwa", capacity: 10000, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.2950, lng: 81.6100, color: "#00e5a0", mva: 10.0, xmers: 2, solarHosting: "2.00 MWp", district: "Raipur", block: "Dharsiwa" },
+  { id: "F-SARA", name: "33/11kV Saragaon", capacity: 5000, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.3000, lng: 81.6400, color: "#00e5a0", mva: 5.0, xmers: 1, solarHosting: "2.00 MWp", district: "Raipur", block: "Dharsiwa" },
+  { id: "F-TILD", name: "33/11kV Tilda", capacity: 6300, zone: "Raipur Div", substationId: "SS-RPR", lat: 21.3100, lng: 81.6700, color: "#00e5a0", mva: 6.3, xmers: 2, solarHosting: "2.00 MWp", district: "Raipur", block: "Tilda" },
+
+  // Korba Division — real substations
+  { id: "F-KRBE", name: "33/11kV Korba East (BALCO)", lat: 22.3600, lng: 82.7100, capacity: 5000, zone: "Korba Div", substationId: "SS-KRB", color: "#ffb800", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Korba", block: "Korba" },
+  { id: "F-KTGH", name: "33/11kV Katghora", capacity: 10000, zone: "Korba Div", substationId: "SS-KRB", lat: 22.3550, lng: 82.6500, color: "#ffb800", mva: 10.0, xmers: 2, solarHosting: "2.00 MWp", district: "Korba", block: "Katghora" },
+  { id: "F-CHRI", name: "33/11kV Chhuri", capacity: 6300, zone: "Korba Div", substationId: "SS-KRB", lat: 22.3400, lng: 82.7200, color: "#ffb800", mva: 6.3, xmers: 2, solarHosting: "2.00 MWp", district: "Korba", block: "Katghora" },
+  { id: "F-PALI", name: "33/11kV Pali (Korba)", capacity: 10000, zone: "Korba Div", substationId: "SS-KRB", lat: 22.3700, lng: 82.6600, color: "#ffb800", mva: 10.0, xmers: 2, solarHosting: "2.00 MWp", district: "Korba", block: "Pali" },
+  { id: "F-KRTL", name: "33/11kV Kartala", capacity: 5000, zone: "Korba Div", substationId: "SS-KRB", lat: 22.3300, lng: 82.7050, color: "#ffb800", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Korba", block: "Kartala" },
+
+  // Durg Division — real substations
+  { id: "F-SUPL", name: "33/11kV Supela (Bhilai)", capacity: 5000, zone: "Durg Div", substationId: "SS-DRG", lat: 21.1950, lng: 81.2700, color: "#e056fd", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Durg", block: "Durg" },
+  { id: "F-GNDL", name: "33/11kV Gondwara (Bhilai)", capacity: 5000, zone: "Durg Div", substationId: "SS-DRG", lat: 21.1850, lng: 81.2950, color: "#e056fd", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Durg", block: "Durg" },
+  { id: "F-RAJN", name: "33/11kV Rajnandgaon", capacity: 6300, zone: "Durg Div", substationId: "SS-DRG", lat: 21.0950, lng: 81.0300, color: "#e056fd", mva: 6.3, xmers: 2, solarHosting: "2.00 MWp", district: "Rajnandgaon", block: "Rajnandgaon" },
+  { id: "F-BMET", name: "33/11kV Bemetara", capacity: 10000, zone: "Durg Div", substationId: "SS-DRG", lat: 21.1700, lng: 81.3100, color: "#e056fd", mva: 10.0, xmers: 2, solarHosting: "2.00 MWp", district: "Bemetara", block: "Bemetara" },
+
+  // Bilaspur Division — real substations
+  { id: "F-BSPC", name: "33/11kV Bilaspur City", capacity: 10000, zone: "Bilaspur Div", substationId: "SS-BSP", lat: 22.0850, lng: 82.1500, color: "#007aff", mva: 10.0, xmers: 2, solarHosting: "2.00 MWp", district: "Bilaspur", block: "Bilaspur" },
+  { id: "F-MUNG", name: "33/11kV Mungeli", capacity: 5000, zone: "Bilaspur Div", substationId: "SS-BSP", lat: 22.0700, lng: 82.1200, color: "#007aff", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Mungeli", block: "Mungeli" },
+  { id: "F-PNDR", name: "33/11kV Pendra Road", capacity: 5000, zone: "Bilaspur Div", substationId: "SS-BSP", lat: 22.0950, lng: 82.1650, color: "#007aff", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Bilaspur", block: "Kota" },
+  { id: "F-TAKH", name: "33/11kV Takhatpur", capacity: 5000, zone: "Bilaspur Div", substationId: "SS-BSP", lat: 22.1050, lng: 82.1100, color: "#007aff", mva: 5.0, xmers: 1, solarHosting: "1.50 MWp", district: "Bilaspur", block: "Takhatpur" },
 ];
 
+// 11kV/0.4kV Distribution Transformers (under each 33/11kV substation)
 const TRANSFORMERS = [
-  { id: "T-101", feederId: "F-01", name: "DT Shankar Nagar", capacityKva: 250, lat: 21.261, lng: 81.626 },
-  { id: "T-102", feederId: "F-01", name: "DT Civil Lines", capacityKva: 400, lat: 21.255, lng: 81.639 },
-  { id: "T-103", feederId: "F-02", name: "DT Torwa", capacityKva: 315, lat: 22.083, lng: 82.129 },
-  { id: "T-104", feederId: "F-02", name: "DT Sarkanda", capacityKva: 200, lat: 22.077, lng: 82.142 },
-  { id: "T-105", feederId: "F-03", name: "DT NTPC Colony", capacityKva: 500, lat: 22.352, lng: 82.680 },
-  { id: "T-106", feederId: "F-03", name: "DT Kusmunda", capacityKva: 315, lat: 22.346, lng: 82.693 },
-  { id: "T-107", feederId: "F-04", name: "DT Supela", capacityKva: 250, lat: 21.188, lng: 81.281 },
-  { id: "T-108", feederId: "F-04", name: "DT Bhilai Sector 6", capacityKva: 400, lat: 21.197, lng: 81.294 },
+  // Raipur cluster
+  { id: "DT-R01", feederId: "F-KARA", name: "DT Kara Village", capacityKva: 250, lat: 21.2630, lng: 81.6180 },
+  { id: "DT-R02", feederId: "F-KARA", name: "DT Kara Market", capacityKva: 400, lat: 21.2670, lng: 81.6220 },
+  { id: "DT-R03", feederId: "F-SEON", name: "DT Seonikala Main", capacityKva: 315, lat: 21.2720, lng: 81.6330 },
+  { id: "DT-R04", feederId: "F-MANA", name: "DT Mana Industrial", capacityKva: 500, lat: 21.2530, lng: 81.6530 },
+  { id: "DT-R05", feederId: "F-MANA", name: "DT Mana Residential", capacityKva: 250, lat: 21.2570, lng: 81.6580 },
+  { id: "DT-R06", feederId: "F-DHAR", name: "DT Dharsiwa Town-1", capacityKva: 630, lat: 21.2930, lng: 81.6080 },
+  { id: "DT-R07", feederId: "F-DHAR", name: "DT Dharsiwa Town-2", capacityKva: 400, lat: 21.2970, lng: 81.6130 },
+  { id: "DT-R08", feederId: "F-SARA", name: "DT Saragaon Colony", capacityKva: 315, lat: 21.2980, lng: 81.6380 },
+  { id: "DT-R09", feederId: "F-TILD", name: "DT Tilda Bazaar", capacityKva: 500, lat: 21.3080, lng: 81.6680 },
+  { id: "DT-R10", feederId: "F-TILD", name: "DT Tilda Arang Rd", capacityKva: 315, lat: 21.3130, lng: 81.6730 },
+
+  // Korba cluster
+  { id: "DT-K01", feederId: "F-KRBE", name: "DT BALCO Colony", capacityKva: 500, lat: 22.3620, lng: 82.7080 },
+  { id: "DT-K02", feederId: "F-KRBE", name: "DT Korba East Bazar", capacityKva: 400, lat: 22.3580, lng: 82.7130 },
+  { id: "DT-K03", feederId: "F-KTGH", name: "DT Katghora Town", capacityKva: 630, lat: 22.3530, lng: 82.6480 },
+  { id: "DT-K04", feederId: "F-KTGH", name: "DT Katghora NTPC", capacityKva: 500, lat: 22.3570, lng: 82.6530 },
+  { id: "DT-K05", feederId: "F-CHRI", name: "DT Chhuri Main", capacityKva: 315, lat: 22.3380, lng: 82.7180 },
+  { id: "DT-K06", feederId: "F-PALI", name: "DT Pali Town", capacityKva: 400, lat: 22.3680, lng: 82.6580 },
+  { id: "DT-K07", feederId: "F-KRTL", name: "DT Kartala Village", capacityKva: 250, lat: 22.3280, lng: 82.7030 },
+
+  // Durg/Bhilai cluster
+  { id: "DT-D01", feederId: "F-SUPL", name: "DT Supela Chowk", capacityKva: 500, lat: 21.1930, lng: 81.2680 },
+  { id: "DT-D02", feederId: "F-SUPL", name: "DT Supela Sector 1", capacityKva: 400, lat: 21.1970, lng: 81.2720 },
+  { id: "DT-D03", feederId: "F-GNDL", name: "DT Gondwara SAIL", capacityKva: 630, lat: 21.1830, lng: 81.2930 },
+  { id: "DT-D04", feederId: "F-GNDL", name: "DT Gondwara Market", capacityKva: 315, lat: 21.1870, lng: 81.2970 },
+  { id: "DT-D05", feederId: "F-RAJN", name: "DT Rajnandgaon City", capacityKva: 500, lat: 21.0930, lng: 81.0280 },
+  { id: "DT-D06", feederId: "F-BMET", name: "DT Bemetara Town", capacityKva: 400, lat: 21.1680, lng: 81.3080 },
+
+  // Bilaspur cluster
+  { id: "DT-B01", feederId: "F-BSPC", name: "DT Bilaspur Vyapar Vihar", capacityKva: 630, lat: 22.0830, lng: 82.1480 },
+  { id: "DT-B02", feederId: "F-BSPC", name: "DT Bilaspur Torwa", capacityKva: 400, lat: 22.0870, lng: 82.1530 },
+  { id: "DT-B03", feederId: "F-MUNG", name: "DT Mungeli Bazaar", capacityKva: 315, lat: 22.0680, lng: 82.1180 },
+  { id: "DT-B04", feederId: "F-PNDR", name: "DT Pendra Road Town", capacityKva: 315, lat: 22.0930, lng: 82.1630 },
+  { id: "DT-B05", feederId: "F-TAKH", name: "DT Takhatpur Main", capacityKva: 400, lat: 22.1030, lng: 82.1080 },
 ];
 
 const HOMES = [
-  { id: "H-01", name: "Shankar Nagar Colony", transformerId: "T-101", lat: 21.263, lng: 81.624, count: 120 },
-  { id: "H-02", name: "Civil Lines Residential", transformerId: "T-102", lat: 21.253, lng: 81.641, count: 85 },
-  { id: "H-03", name: "Torwa Housing", transformerId: "T-103", lat: 22.085, lng: 82.127, count: 200 },
-  { id: "H-04", name: "NTPC Staff Quarters", transformerId: "T-105", lat: 22.354, lng: 82.678, count: 150 },
-  { id: "H-05", name: "Bhilai Sec 6 Flats", transformerId: "T-108", lat: 21.199, lng: 81.296, count: 300 },
+  // Raipur
+  { id: "H-R01", name: "Kara Village HH", transformerId: "DT-R01", lat: 21.2615, lng: 81.6165, count: 180 },
+  { id: "H-R02", name: "Dharsiwa Residential", transformerId: "DT-R06", lat: 21.2915, lng: 81.6065, count: 450 },
+  { id: "H-R03", name: "Tilda Colony", transformerId: "DT-R09", lat: 21.3065, lng: 81.6665, count: 320 },
+  { id: "H-R04", name: "Mana Housing", transformerId: "DT-R05", lat: 21.2555, lng: 81.6565, count: 200 },
+  // Korba
+  { id: "H-K01", name: "BALCO Staff Colony", transformerId: "DT-K01", lat: 22.3635, lng: 82.7065, count: 280 },
+  { id: "H-K02", name: "Katghora Town HH", transformerId: "DT-K03", lat: 22.3515, lng: 82.6465, count: 350 },
+  { id: "H-K03", name: "Pali Village HH", transformerId: "DT-K06", lat: 22.3665, lng: 82.6565, count: 200 },
+  // Durg/Bhilai
+  { id: "H-D01", name: "Supela Sector 1 HH", transformerId: "DT-D02", lat: 21.1955, lng: 81.2705, count: 600 },
+  { id: "H-D02", name: "SAIL Township", transformerId: "DT-D03", lat: 21.1815, lng: 81.2915, count: 400 },
+  { id: "H-D03", name: "Rajnandgaon Nagar", transformerId: "DT-D05", lat: 21.0915, lng: 81.0265, count: 500 },
+  // Bilaspur
+  { id: "H-B01", name: "Vyapar Vihar Colony", transformerId: "DT-B01", lat: 22.0815, lng: 82.1465, count: 380 },
+  { id: "H-B02", name: "Takhatpur Residential", transformerId: "DT-B05", lat: 22.1015, lng: 82.1065, count: 250 },
 ];
 
 const INDUSTRIES = [
-  { id: "IND-01", name: "Bhilai Steel Plant (SAIL)", feederId: "F-04", type: "steel", contractDemand: 5000, lat: 21.193, lng: 81.298, solarCapacity: 500 },
-  { id: "IND-02", name: "NTPC Korba Thermal Station", feederId: "F-03", type: "power_gen", contractDemand: 2000, lat: 22.358, lng: 82.675, solarCapacity: 200 },
-  { id: "IND-03", name: "Raipur Industrial Area (MSME Cluster)", feederId: "F-01", type: "msme", contractDemand: 1200, lat: 21.265, lng: 81.618, solarCapacity: 80 },
-  { id: "IND-04", name: "ACC Cement Jamul", feederId: "F-04", type: "cement", contractDemand: 3500, lat: 21.185, lng: 81.275, solarCapacity: 300 },
-  { id: "IND-05", name: "Bilaspur Rice Mills Cluster", feederId: "F-02", type: "agro", contractDemand: 800, lat: 22.088, lng: 82.138, solarCapacity: 50 },
-  { id: "IND-06", name: "Siltara Industrial Park", feederId: "F-01", type: "mixed", contractDemand: 2500, lat: 21.270, lng: 81.645, solarCapacity: 150 },
+  // Real industries in Chhattisgarh
+  { id: "IND-01", name: "Bhilai Steel Plant (SAIL)", feederId: "F-GNDL", type: "steel", contractDemand: 45000, lat: 21.1840, lng: 81.2960, solarCapacity: 2000 },
+  { id: "IND-02", name: "BALCO Aluminium (Vedanta)", feederId: "F-KRBE", type: "aluminium", contractDemand: 25000, lat: 22.3610, lng: 82.7090, solarCapacity: 1500 },
+  { id: "IND-03", name: "NTPC Korba STPS (2600 MW)", feederId: "F-KTGH", type: "power_gen", contractDemand: 15000, lat: 22.3560, lng: 82.6520, solarCapacity: 500 },
+  { id: "IND-04", name: "ACC Cement Jamul", feederId: "F-GNDL", type: "cement", contractDemand: 8000, lat: 21.1800, lng: 81.2800, solarCapacity: 800 },
+  { id: "IND-05", name: "Siltara Industrial Park (MSME)", feederId: "F-MANA", type: "msme", contractDemand: 12000, lat: 21.2540, lng: 81.6540, solarCapacity: 600 },
+  { id: "IND-06", name: "Raipur Urla Industrial Area", feederId: "F-KARA", type: "mixed", contractDemand: 6000, lat: 21.2640, lng: 81.6190, solarCapacity: 400 },
+  { id: "IND-07", name: "Bilaspur Rice & Agro Mills", feederId: "F-BSPC", type: "agro", contractDemand: 3000, lat: 22.0840, lng: 82.1490, solarCapacity: 200 },
+  { id: "IND-08", name: "Rajnandgaon Textile Cluster", feederId: "F-RAJN", type: "textile", contractDemand: 4000, lat: 21.0940, lng: 81.0290, solarCapacity: 300 },
 ];
 
 const DER_ASSETS = [
-  { id: "EV-01", type: "ev", subtype: "charger", name: "EV Hub Shankar Nagar", transformerId: "T-101", maxKw: 50, lat: 21.260, lng: 81.628 },
-  { id: "EV-02", type: "ev", subtype: "charger", name: "EV Station Civil Lines", transformerId: "T-102", maxKw: 120, lat: 21.256, lng: 81.637 },
-  { id: "EV-03", type: "ev", subtype: "charger", name: "EV Charger NTPC", transformerId: "T-105", maxKw: 80, lat: 22.350, lng: 82.683 },
-  { id: "EVP-01", type: "ev", subtype: "park", name: "EV Charge Park Durg", transformerId: "T-107", maxKw: 300, lat: 21.186, lng: 81.283 },
-  { id: "SOL-01", type: "solar", subtype: "rooftop", name: "Rooftop Solar Torwa", transformerId: "T-103", maxKw: 60, lat: 22.082, lng: 82.131 },
-  { id: "SOL-02", type: "solar", subtype: "rooftop", name: "Rooftop Solar Kusmunda", transformerId: "T-106", maxKw: 100, lat: 22.348, lng: 82.691 },
-  { id: "SOL-03", type: "solar", subtype: "park", name: "Solar Park Supela", transformerId: "T-107", maxKw: 200, lat: 21.190, lng: 81.279 },
-  { id: "SOL-04", type: "solar", subtype: "rooftop", name: "Rooftop Bhilai Sec 6", transformerId: "T-108", maxKw: 45, lat: 21.196, lng: 81.292 },
+  // Raipur EVs & Solar
+  { id: "EV-R01", type: "ev", subtype: "charger", name: "EV Station Dharsiwa NH", transformerId: "DT-R06", maxKw: 60, lat: 21.2940, lng: 81.6090 },
+  { id: "EV-R02", type: "ev", subtype: "charger", name: "EV Hub Mana Square", transformerId: "DT-R04", maxKw: 120, lat: 21.2540, lng: 81.6540 },
+  { id: "EVP-R01", type: "ev", subtype: "park", name: "EV Charge Park Tilda Highway", transformerId: "DT-R09", maxKw: 300, lat: 21.3090, lng: 81.6690 },
+  { id: "SOL-R01", type: "solar", subtype: "rooftop", name: "Rooftop Solar Dharsiwa Govt", transformerId: "DT-R07", maxKw: 100, lat: 21.2960, lng: 81.6120 },
+  { id: "SOL-R02", type: "solar", subtype: "park", name: "Solar Park Saragaon (KUSUM)", transformerId: "DT-R08", maxKw: 2000, lat: 21.2990, lng: 81.6390 },
+  // Korba EVs & Solar
+  { id: "EV-K01", type: "ev", subtype: "charger", name: "EV Charger NTPC Colony", transformerId: "DT-K04", maxKw: 60, lat: 22.3560, lng: 82.6520 },
+  { id: "SOL-K01", type: "solar", subtype: "park", name: "Solar Park Pali (KUSUM 2MW)", transformerId: "DT-K06", maxKw: 2000, lat: 22.3690, lng: 82.6590 },
+  { id: "SOL-K02", type: "solar", subtype: "rooftop", name: "Rooftop Solar Katghora Mkt", transformerId: "DT-K03", maxKw: 80, lat: 22.3540, lng: 82.6490 },
+  // Durg/Bhilai
+  { id: "EV-D01", type: "ev", subtype: "charger", name: "EV Station Supela Chowk", transformerId: "DT-D01", maxKw: 120, lat: 21.1940, lng: 81.2690 },
+  { id: "EVP-D01", type: "ev", subtype: "park", name: "EV Charge Park SAIL Gate", transformerId: "DT-D03", maxKw: 500, lat: 21.1840, lng: 81.2940 },
+  { id: "SOL-D01", type: "solar", subtype: "rooftop", name: "Rooftop Solar Bemetara", transformerId: "DT-D06", maxKw: 150, lat: 21.1690, lng: 81.3090 },
+  // Bilaspur
+  { id: "EV-B01", type: "ev", subtype: "charger", name: "EV Hub Bilaspur Station Rd", transformerId: "DT-B01", maxKw: 60, lat: 22.0840, lng: 82.1490 },
+  { id: "SOL-B01", type: "solar", subtype: "park", name: "Solar Park Mungeli (KUSUM)", transformerId: "DT-B03", maxKw: 1500, lat: 22.0690, lng: 82.1190 },
+  { id: "SOL-B02", type: "solar", subtype: "rooftop", name: "Rooftop Solar Takhatpur", transformerId: "DT-B05", maxKw: 60, lat: 22.1040, lng: 82.1090 },
 ];
 
 // ─── Telemetry Device Marketplace Catalog ────────────────────────────────

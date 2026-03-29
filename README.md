@@ -6,7 +6,7 @@ Last-mile grid visibility, control, and AI-driven insights across feeders, trans
 
 ## Live Demo
 
-👉 [Open Dashboard](https://yourusername.github.io/sankhyagrid/)
+👉 [Open Dashboard](https://gagandeepkukreja.github.io/SankhyaGrid/)
 
 ## Features
 

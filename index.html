@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SankhyaGrid — Distribution Intelligence Platform</title>
 <style>
-  html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; background: #060a13; }
+  html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; background: #f7f5f2; }
 </style>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -330,14 +330,14 @@ function useHistory(items, key, maxLen = 30) {
 
 // ─── Legend Icons ────────────────────────────────────────────────────────
 const LEGEND = {
-  substation: { label: "Substation", color: "#f0f4f8" },
-  feeder: { label: "Feeder", color: "#00e5a0" },
-  transformer: { label: "Transformer", color: "#ffb800" },
-  home: { label: "Homes / Consumers", color: "#8e7cc3" },
-  industry: { label: "Industry / IPP", color: "#ff6b35" },
-  ev_charger: { label: "EV Charger", color: "#007aff" },
-  ev_park: { label: "EV Charge Park", color: "#0055cc" },
-  solar: { label: "Solar Inverter", color: "#ffb800" },
+  substation: { label: "Substation", color: "#1a2744" },
+  feeder: { label: "Feeder", color: "#2a7d8c" },
+  transformer: { label: "Transformer", color: "#d4a843" },
+  home: { label: "Homes / Consumers", color: "#7b6b9e" },
+  industry: { label: "Industry / IPP", color: "#c4532a" },
+  ev_charger: { label: "EV Charger", color: "#2a7d8c" },
+  ev_park: { label: "EV Charge Park", color: "#1a5f6b" },
+  solar: { label: "Solar Inverter", color: "#d4a843" },
 };
 
 function LegendDot({ color, size = 10 }) {
@@ -358,55 +358,53 @@ function DataHealthBadge({ status }) {
 // ─── Theme Tokens ────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
-    bg: "#060a13", bgCard: "#0d1320", bgHeader: "#0a0f1c", bgInner: "#111a2b",
-    border: "#1a2235", borderLight: "#111a2b",
-    text: "#c8d6e5", textBright: "#f0f4f8", textDim: "#5a6e83", textFaint: "#3a5068", textMuted: "#3a4a5e",
-    gridLine: "#131b2e", barBg: "#1a2235", chartBar: "#1e3a5f",
-    green: "#00e5a0", blue: "#007aff", yellow: "#ffb800", red: "#ff3b5c", purple: "#8e7cc3",
+    bg: "#1a2744", bgCard: "#1f2f4d", bgHeader: "#152038", bgInner: "#243354",
+    border: "#2d4166", borderLight: "#243354",
+    text: "#c4cdd9", textBright: "#edf1f5", textDim: "#7c8da3", textFaint: "#4d6280", textMuted: "#5a6e83",
+    gridLine: "#253658", barBg: "#2d4166", chartBar: "#3a5a8a",
+    green: "#6b8f71", blue: "#2a7d8c", yellow: "#d4a843", red: "#c4532a", purple: "#7b6b9e",
   },
   light: {
-    bg: "#f0f2f5", bgCard: "#ffffff", bgHeader: "#ffffff", bgInner: "#f5f6f8",
-    border: "#e0e3e8", borderLight: "#edf0f3",
-    text: "#3a4a5e", textBright: "#1a1a2e", textDim: "#6b7c8f", textFaint: "#aab4c0", textMuted: "#9aa5b1",
-    gridLine: "#e8ecf0", barBg: "#e0e3e8", chartBar: "#a0c4f0",
-    green: "#0a9d6e", blue: "#0066dd", yellow: "#d49a00", red: "#d93251", purple: "#7b68b0",
+    bg: "#f7f5f2", bgCard: "#ffffff", bgHeader: "#1a2744", bgInner: "#f0ece6",
+    border: "#e0dbd3", borderLight: "#ebe7e0",
+    text: "#4a4540", textBright: "#1a1a18", textDim: "#7a7570", textFaint: "#b0aaa3", textMuted: "#9a948e",
+    gridLine: "#e8e3dc", barBg: "#e0dbd3", chartBar: "#8fb5bc",
+    green: "#4a7a52", blue: "#2a7d8c", yellow: "#c49a30", red: "#c4532a", purple: "#7b6b9e",
   },
 };
 
 function makeStyles(t) {
   return {
-    app: { fontFamily: "'JetBrains Mono', 'Fira Code', monospace", background: t.bg, color: t.text, minHeight: "100vh", fontSize: 13 },
-    header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", borderBottom: `1px solid ${t.border}`, background: t.bgHeader },
+    app: { fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: t.bg, color: t.text, minHeight: "100vh", fontSize: 13 },
+    header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 24px", borderBottom: `1px solid ${t.border}`, background: t.bgHeader },
     logo: { display: "flex", alignItems: "center", gap: 10 },
-    nav: { display: "flex", gap: 1, padding: "0 20px", background: t.bgHeader, borderBottom: `1px solid ${t.border}`, overflowX: "auto" },
-    navBtn: (active) => ({ padding: "9px 14px", fontSize: 10, fontWeight: active ? 700 : 500, color: active ? t.green : t.textDim, background: active ? `${t.green}08` : "none", border: "none", borderBottom: active ? `2px solid ${t.green}` : "2px solid transparent", cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", fontFamily: "inherit", whiteSpace: "nowrap" }),
+    nav: { display: "flex", gap: 2, padding: "0 24px", background: t.bg, borderBottom: `1px solid ${t.border}`, overflowX: "auto" },
+    navBtn: (active) => ({ padding: "10px 16px", fontSize: 11, fontWeight: active ? 700 : 500, color: active ? t.blue : t.textDim, background: active ? `${t.blue}10` : "none", border: "none", borderBottom: active ? `2.5px solid ${t.blue}` : "2.5px solid transparent", cursor: "pointer", letterSpacing: 0.3, textTransform: "none", fontFamily: "inherit", whiteSpace: "nowrap" }),
     main: { padding: 16 },
-    card: { background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 8, padding: 14, position: "relative", overflow: "hidden" },
-    glow: (c) => ({ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${c}, transparent)` }),
-    label: { fontSize: 9, color: t.textDim, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8, fontWeight: 600 },
-    bigNum: { fontSize: 26, fontWeight: 800, color: t.textBright, lineHeight: 1 },
-    unit: { fontSize: 10, color: t.textDim, fontWeight: 400, marginLeft: 3 },
+    card: { background: t.bgCard, border: `1px solid ${t.border}`, borderRadius: 6, padding: 16, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
+    glow: (c) => ({ position: "absolute", top: 0, left: 0, width: 3, height: "100%", background: c }),
+    label: { fontSize: 10, color: t.textDim, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8, fontWeight: 600 },
+    bigNum: { fontSize: 28, fontWeight: 700, color: t.textBright, lineHeight: 1 },
+    unit: { fontSize: 11, color: t.textDim, fontWeight: 400, marginLeft: 3 },
     badge: (type) => {
       const c = { healthy: t.green, warning: t.yellow, critical: t.red, insight: t.blue, idle: t.textMuted, charging: t.blue, generating: t.yellow, offline: t.textMuted }[type] || t.textDim;
-      return { display: "inline-block", fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 3, background: `${c}18`, color: c, border: `1px solid ${c}40`, textTransform: "uppercase", letterSpacing: 0.6 };
+      return { display: "inline-block", fontSize: 9, fontWeight: 600, padding: "2px 8px", borderRadius: 3, background: `${c}15`, color: c, border: `1px solid ${c}30`, letterSpacing: 0.3 };
     },
-    table: { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-    th: { textAlign: "left", padding: "7px 8px", fontSize: 9, color: t.textDim, textTransform: "uppercase", letterSpacing: 1, borderBottom: `1px solid ${t.border}`, fontWeight: 600 },
-    td: { padding: "7px 8px", borderBottom: `1px solid ${t.borderLight}` },
-    bar: { height: 4, borderRadius: 2, background: t.barBg, position: "relative", overflow: "hidden", width: 70, display: "inline-block", verticalAlign: "middle" },
-    barFill: (pct, c) => ({ height: "100%", borderRadius: 2, width: `${Math.min(pct, 100)}%`, background: pct > 95 ? t.red : pct > 80 ? t.yellow : c || t.green, transition: "width 0.5s" }),
+    table: { width: "100%", borderCollapse: "collapse", fontSize: 12 },
+    th: { textAlign: "left", padding: "8px 10px", fontSize: 10, color: t.textDim, textTransform: "uppercase", letterSpacing: 0.8, borderBottom: `2px solid ${t.border}`, fontWeight: 600 },
+    td: { padding: "8px 10px", borderBottom: `1px solid ${t.borderLight}` },
+    bar: { height: 5, borderRadius: 3, background: t.barBg, position: "relative", overflow: "hidden", width: 80, display: "inline-block", verticalAlign: "middle" },
+    barFill: (pct, c) => ({ height: "100%", borderRadius: 3, width: `${Math.min(pct, 100)}%`, background: pct > 95 ? t.red : pct > 80 ? t.yellow : c || t.green, transition: "width 0.5s" }),
     alertRow: (sev) => {
-      const bg = { critical: `${t.red}0f`, warning: `${t.yellow}0f`, insight: `${t.blue}0f` };
+      const bg = { critical: `${t.red}08`, warning: `${t.yellow}08`, insight: `${t.blue}08` };
       const brd = { critical: t.red, warning: t.yellow, insight: t.blue };
-      return { display: "flex", gap: 10, alignItems: "flex-start", padding: "9px 12px", borderLeft: `3px solid ${brd[sev]}`, background: bg[sev], borderRadius: "0 5px 5px 0", marginBottom: 5 };
+      return { display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 14px", borderLeft: `3px solid ${brd[sev]}`, background: bg[sev], borderRadius: "0 4px 4px 0", marginBottom: 6 };
     },
-    // theme tokens exposed for components
     t,
   };
 }
 
-// Start with dark
-let S = makeStyles(THEMES.dark);
+let S = makeStyles(THEMES.light);
 
 // ─── GIS MAP VIEW (SVG-based, no external tiles) ────────────────────────
 function GISView({ data, mob }) {
@@ -441,7 +439,7 @@ function GISView({ data, mob }) {
       const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([21.75, 81.95], 8);
       L.control.zoom({ position: "bottomright" }).addTo(map);
       // Dark tiles from CARTO, fallback to OSM
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19 }).addTo(map);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { maxZoom: 19 }).addTo(map);
       mapInstance.current = map; setLeafletReady(true);
     };
     loadLeaflet();
@@ -1515,10 +1513,82 @@ function SankhyaGridApp() {
   const [alerts, setAlerts] = useState([]);
   const feederHistory = useHistory(data.feeders, "loadPct");
   const mob = useIsMobile();
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [sector, setSector] = useState("distribution");
+  const [lang, setLang] = useState("en");
   S = makeStyles(THEMES[theme]);
   const t = S.t;
+
+  // Translation dictionary
+  const T = {
+    en: {
+      platform: "Grid Intelligence Platform",
+      live: "LIVE",
+      generation: "Generation", transmission: "Transmission", distribution: "Distribution",
+      soon: "SOON",
+      gis: "GIS View", network: "Network Overview", realtime: "Real-Time",
+      alerts: "Alerts", predictive: "Predictive", der: "DER", marketplace: "Marketplace",
+      totalLoad: "Total Load", utilization: "Utilization", avgLoss: "Avg Loss",
+      solar: "Solar", evLoad: "EV Load", solarGen: "Solar Gen", netDemand: "Net Demand",
+      solarPct: "Solar %",
+      feederParams: "Feeder Parameters", transformerGrid: "Transformer Grid",
+      sld: "Single Line Diagram", lossMonitor: "AT&C Loss Monitor",
+      assetLayers: "Asset Layers", trackedMetrics: "Tracked Metrics", assetMetadata: "Asset Metadata",
+      assetCount: "Asset Count", clickAsset: "Click any asset on the map",
+      viewAnalytics: "VIEW ANALYTICS — Half-Hourly Profile",
+      recTelemetry: "Recommended Telemetry", docsAi: "Documents & AI Extract",
+      upload: "UPLOAD (PDF, JPG, PNG, DOCX)", aiProcessing: "AI Processing...",
+      ocrLlm: "Running OCR & LLM extraction",
+      alertFeed: "Alert Feed", critical: "Critical", warnings: "Warnings", aiInsights: "AI Insights", total: "Total",
+      evForecast: "EV Load Forecast", loadForecast: "Total Load Forecast",
+      solarForecast: "Solar Generation Forecast", tempRisk: "Temperature vs Transformer Risk",
+      weatherAlert: "Weather Alert: Extreme Heat Advisory",
+      weatherDesc: "Forecast 42°C peak. Transformer cooling reduced ~15%. Pre-position load shedding.",
+      dtRisk: "Transformer Overload Risk — Next 6h", evPattern: "Historical EV Pattern (7-Day Avg)",
+      evAssets: "EV Assets", solarAssets: "Solar Assets", energyBalance: "Energy Balance",
+      telemetryMkt: "Telemetry Marketplace", searchDevices: "Search devices, suppliers...",
+      requestInfo: "REQUEST SUPPLIER INFO", requested: "REQUESTED",
+      genTitle: "Generation Intelligence", genDesc: "IPP monitoring, solar/wind farm SCADA, generation forecasting, merit order dispatch, PPA compliance tracking, and plant-level analytics.",
+      transTitle: "Transmission Intelligence", transDesc: "Transmission network monitoring, substation automation, inter-state power flow, ISTS scheduling, protection coordination, and grid stability analytics.",
+      comingSoon: "Coming Soon — Under Development", switchTo: "Switch to",
+      toExplore: "to explore the live platform",
+      footer: "with \u2764\uFE0F made in India",
+    },
+    hi: {
+      platform: "ग्रिड इंटेलिजेंस प्लेटफॉर्म",
+      live: "लाइव",
+      generation: "उत्पादन", transmission: "पारेषण", distribution: "वितरण",
+      soon: "जल्द",
+      gis: "GIS दृश्य", network: "नेटवर्क अवलोकन", realtime: "रियल-टाइम",
+      alerts: "अलर्ट", predictive: "भविष्यवाणी", der: "DER", marketplace: "बाज़ार",
+      totalLoad: "कुल भार", utilization: "उपयोग", avgLoss: "औसत हानि",
+      solar: "सौर", evLoad: "EV भार", solarGen: "सौर उत्पादन", netDemand: "शुद्ध माँग",
+      solarPct: "सौर %",
+      feederParams: "फीडर पैरामीटर", transformerGrid: "ट्रांसफार्मर ग्रिड",
+      sld: "सिंगल लाइन डायग्राम", lossMonitor: "AT&C हानि मॉनिटर",
+      assetLayers: "एसेट लेयर्स", trackedMetrics: "ट्रैक किए गए मेट्रिक्स", assetMetadata: "एसेट मेटाडाटा",
+      assetCount: "एसेट गणना", clickAsset: "मानचित्र पर किसी एसेट पर क्लिक करें",
+      viewAnalytics: "विश्लेषण देखें — हाफ-ऑवरली प्रोफ़ाइल",
+      recTelemetry: "अनुशंसित टेलीमेट्री", docsAi: "दस्तावेज़ और AI निष्कर्षण",
+      upload: "अपलोड (PDF, JPG, PNG, DOCX)", aiProcessing: "AI प्रोसेसिंग...",
+      ocrLlm: "OCR और LLM निष्कर्षण चल रहा है",
+      alertFeed: "अलर्ट फ़ीड", critical: "गंभीर", warnings: "चेतावनी", aiInsights: "AI अंतर्दृष्टि", total: "कुल",
+      evForecast: "EV भार पूर्वानुमान", loadForecast: "कुल भार पूर्वानुमान",
+      solarForecast: "सौर उत्पादन पूर्वानुमान", tempRisk: "तापमान बनाम ट्रांसफार्मर जोखिम",
+      weatherAlert: "मौसम चेतावनी: अत्यधिक गर्मी",
+      weatherDesc: "42°C अधिकतम तापमान। ट्रांसफार्मर कूलिंग ~15% कम। लोड शेडिंग तैयार रखें।",
+      dtRisk: "ट्रांसफार्मर ओवरलोड जोखिम — अगले 6 घंटे", evPattern: "ऐतिहासिक EV पैटर्न (7-दिन औसत)",
+      evAssets: "EV एसेट्स", solarAssets: "सौर एसेट्स", energyBalance: "ऊर्जा संतुलन",
+      telemetryMkt: "टेलीमेट्री बाज़ार", searchDevices: "डिवाइस, सप्लायर खोजें...",
+      requestInfo: "सप्लायर जानकारी अनुरोध", requested: "अनुरोध किया",
+      genTitle: "उत्पादन इंटेलिजेंस", genDesc: "IPP निगरानी, सौर/पवन फार्म SCADA, उत्पादन पूर्वानुमान, मेरिट ऑर्डर डिस्पैच, PPA अनुपालन ट्रैकिंग।",
+      transTitle: "पारेषण इंटेलिजेंस", transDesc: "पारेषण नेटवर्क निगरानी, सबस्टेशन ऑटोमेशन, अंतर-राज्यीय पावर फ्लो, ISTS शेड्यूलिंग, ग्रिड स्थिरता।",
+      comingSoon: "जल्द आ रहा है — विकास जारी", switchTo: "स्विच करें",
+      toExplore: "लाइव प्लेटफ़ॉर्म देखने के लिए",
+      footer: "भारत में \u2764\uFE0F से बनाया",
+    },
+  };
+  const L = T[lang];
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -1532,19 +1602,19 @@ function SankhyaGridApp() {
 
   const critCount = alerts.filter(a => a.severity === "critical").length;
   const tabs = [
-    { key: "gis", label: "GIS View" },
-    { key: "network", label: "Network Overview" },
-    { key: "monitoring", label: "Real-Time" },
-    { key: "alerts", label: `Alerts (${critCount})` },
-    { key: "predictive", label: "Predictive" },
-    { key: "der", label: "DER" },
-    { key: "marketplace", label: "🛒 Marketplace" },
+    { key: "gis", label: L.gis },
+    { key: "network", label: L.network },
+    { key: "monitoring", label: L.realtime },
+    { key: "alerts", label: `${L.alerts} (${critCount})` },
+    { key: "predictive", label: L.predictive },
+    { key: "der", label: L.der },
+    { key: "marketplace", label: `🛒 ${L.marketplace}` },
   ];
 
   return (
     <div style={S.app}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
         @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
         * { box-sizing:border-box; margin:0; padding:0 }
         ::-webkit-scrollbar { width:5px }
@@ -1561,18 +1631,25 @@ function SankhyaGridApp() {
             <span style={{ fontSize: mob ? 14 : 18, fontWeight: 900, color: "#060a13", fontFamily: "serif", lineHeight: 1, marginTop: -1 }}>सां</span>
           </div>
           <div>
-            <div style={{ fontSize: mob ? 12 : 15, fontWeight: 700, letterSpacing: 1.5, color: t.textBright }}>SANKHYAGRID{!mob && <span style={{ fontSize: 11, color: t.textDim, fontWeight: 400, marginLeft: 6 }}>सांख्य</span>}</div>
-            {!mob && <div style={{ fontSize: 8, color: t.textDim, letterSpacing: 2, textTransform: "uppercase" }}>Grid Intelligence Platform</div>}
+            <div style={{ fontSize: mob ? 12 : 15, fontWeight: 700, letterSpacing: 1, color: "#edf1f5" }}>SANKHYAGRID{!mob && <span style={{ fontSize: 11, color: "#7c8da3", fontWeight: 400, marginLeft: 6 }}>सांख्य</span>}</div>
+            {!mob && <div style={{ fontSize: 9, color: "#7c8da3", letterSpacing: 1.5 }}>{L.platform}</div>}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: mob ? 6 : 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: mob ? 8 : 10, color: t.green, background: `${t.green}14`, padding: "3px 9px", borderRadius: 14, border: `1px solid ${t.green}33` }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: t.green, animation: "pulse 2s infinite" }} />LIVE
+          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: mob ? 8 : 10, color: "#6b8f71", background: "rgba(107,143,113,0.15)", padding: "3px 9px", borderRadius: 4, border: "1px solid rgba(107,143,113,0.3)" }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#6b8f71", animation: "pulse 2s infinite" }} />LIVE
           </div>
-          {!mob && <div style={{ fontSize: 10, color: t.textDim }}>{data.timestamp.toLocaleTimeString()}</div>}
+          {!mob && <div style={{ fontSize: 10, color: "#7c8da3" }}>{data.timestamp.toLocaleTimeString()}</div>}
+          <button
+            onClick={() => setLang(l => l === "en" ? "hi" : "en")}
+            style={{ height: 32, borderRadius: 6, border: "1px solid rgba(124,141,163,0.3)", background: "rgba(255,255,255,0.08)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, padding: "0 10px", transition: "all 0.3s", fontFamily: "inherit", color: "#edf1f5", fontWeight: 600, gap: 4 }}
+            title={lang === "en" ? "हिंदी में बदलें" : "Switch to English"}
+          >
+            {lang === "en" ? "हिं" : "EN"}
+          </button>
           <button
             onClick={() => setTheme(th => th === "dark" ? "light" : "dark")}
-            style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${t.border}`, background: t.bgCard, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, padding: 0, transition: "all 0.3s" }}
+            style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid rgba(124,141,163,0.3)", background: "rgba(255,255,255,0.08)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, padding: 0, transition: "all 0.3s" }}
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {theme === "dark" ? "☀️" : "🌙"}
@@ -1583,9 +1660,9 @@ function SankhyaGridApp() {
       {/* Sector Mode Bar */}
       <div style={{ display: "flex", alignItems: "center", background: t.bgHeader, borderBottom: `1px solid ${t.border}`, padding: mob ? "6px 8px" : "6px 20px", gap: mob ? 4 : 8 }}>
         {[
-          { key: "generation", label: "Generation", icon: "⚡", color: "#ffb800" },
-          { key: "transmission", label: "Transmission", icon: "🔗", color: "#8e7cc3" },
-          { key: "distribution", label: "Distribution", icon: "🔌", color: "#00e5a0" },
+          { key: "generation", label: L.generation, icon: "⚡", color: "#d4a843" },
+          { key: "transmission", label: L.transmission, icon: "🔗", color: "#7b6b9e" },
+          { key: "distribution", label: L.distribution, icon: "🔌", color: "#2a7d8c" },
         ].map(s => {
           const isActive = sector === s.key;
           const isAvailable = s.key === "distribution";
@@ -1610,7 +1687,7 @@ function SankhyaGridApp() {
             >
               <span>{s.icon}</span>
               <span>{s.label}</span>
-              {!isAvailable && <span style={{ fontSize: 7, color: t.textMuted, background: `${t.textMuted}15`, padding: "1px 4px", borderRadius: 3, marginLeft: 2 }}>SOON</span>}
+              {!isAvailable && <span style={{ fontSize: 7, color: t.textMuted, background: `${t.textMuted}15`, padding: "1px 4px", borderRadius: 3, marginLeft: 2 }}>{L.soon}</span>}
             </button>
           );
         })}
@@ -1637,26 +1714,23 @@ function SankhyaGridApp() {
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>{sector === "generation" ? "⚡" : "🔗"}</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: t.textBright, marginBottom: 8 }}>
-              {sector === "generation" ? "Generation Intelligence" : "Transmission Intelligence"}
+              {sector === "generation" ? L.genTitle : L.transTitle}
             </div>
             <div style={{ fontSize: 12, color: t.textDim, maxWidth: 400, lineHeight: 1.6, marginBottom: 20 }}>
-              {sector === "generation" 
-                ? "IPP monitoring, solar/wind farm SCADA, generation forecasting, merit order dispatch, PPA compliance tracking, and plant-level analytics."
-                : "Transmission network monitoring, substation automation, inter-state power flow, ISTS scheduling, protection coordination, and grid stability analytics."
-              }
+              {sector === "generation" ? L.genDesc : L.transDesc}
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 20px", background: `${t.textMuted}10`, border: `1px solid ${t.border}`, borderRadius: 8, fontSize: 11, color: t.textDim }}>
               <span style={{ fontSize: 14 }}>🚧</span>
-              Coming Soon — Under Development
+              {L.comingSoon}
             </div>
             <div style={{ marginTop: 16, fontSize: 9, color: t.textMuted }}>
-              Switch to <button onClick={() => setSector("distribution")} style={{ background: "none", border: "none", color: t.green, cursor: "pointer", fontFamily: "inherit", fontSize: 9, fontWeight: 700, textDecoration: "underline" }}>Distribution</button> to explore the live platform
+              {L.switchTo} <button onClick={() => setSector("distribution")} style={{ background: "none", border: "none", color: t.green, cursor: "pointer", fontFamily: "inherit", fontSize: 9, fontWeight: 700, textDecoration: "underline" }}>{L.distribution}</button> {L.toExplore}
             </div>
           </div>
         </main>
       )}
       <footer style={{ padding: "8px 20px", borderTop: `1px solid ${t.border}`, display: "flex", justifyContent: "center", fontSize: 9, color: t.textFaint }}>
-        <span>with ❤️ made in India</span>
+        <span>{L.footer}</span>
       </footer>
     </div>
   );

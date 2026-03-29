@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SankhyaGrid — Distribution Intelligence Platform</title>
+<style>
+  html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; background: #060a13; }
+</style>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+// ─── Asset Data with Real Coordinates (Chhattisgarh region) ──────────────
+const SUBSTATIONS = [
+  { id: "SS-01", name: "Substation Raipur 132kV", lat: 21.2514, lng: 81.6296, capacityMva: 50 },
+];
+
+const FEEDERS = [
+  { id: "F-01", name: "Feeder Raipur-North", capacity: 800, zone: "Zone A", substationId: "SS-01", lat: 21.258, lng: 81.632, color: "#00e5a0" },
+  { id: "F-02", name: "Feeder Bilaspur-Central", capacity: 650, zone: "Zone A", substationId: "SS-01", lat: 22.080, lng: 82.135, color: "#007aff" },
+  { id: "F-03", name: "Feeder Korba-East", capacity: 720, zone: "Zone B", substationId: "SS-01", lat: 22.349, lng: 82.686, color: "#ffb800" },
+  { id: "F-04", name: "Feeder Durg-South", capacity: 550, zone: "Zone B", substationId: "SS-01", lat: 21.192, lng: 81.287, color: "#e056fd" },
+];
+
+const TRANSFORMERS = [
+  { id: "T-101", feederId: "F-01", name: "DT Shankar Nagar", capacityKva: 250, lat: 21.261, lng: 81.626 },
+  { id: "T-102", feederId: "F-01", name: "DT Civil Lines", capacityKva: 400, lat: 21.255, lng: 81.639 },
+  { id: "T-103", feederId: "F-02", name: "DT Torwa", capacityKva: 315, lat: 22.083, lng: 82.129 },
+  { id: "T-104", feederId: "F-02", name: "DT Sarkanda", capacityKva: 200, lat: 22.077, lng: 82.142 },
+  { id: "T-105", feederId: "F-03", name: "DT NTPC Colony", capacityKva: 500, lat: 22.352, lng: 82.680 },
+  { id: "T-106", feederId: "F-03", name: "DT Kusmunda", capacityKva: 315, lat: 22.346, lng: 82.693 },
+  { id: "T-107", feederId: "F-04", name: "DT Supela", capacityKva: 250, lat: 21.188, lng: 81.281 },
+  { id: "T-108", feederId: "F-04", name: "DT Bhilai Sector 6", capacityKva: 400, lat: 21.197, lng: 81.294 },
+];
+
+const HOMES = [
+  { id: "H-01", name: "Shankar Nagar Colony", transformerId: "T-101", lat: 21.263, lng: 81.624, count: 120 },
+  { id: "H-02", name: "Civil Lines Residential", transformerId: "T-102", lat: 21.253, lng: 81.641, count: 85 },
+  { id: "H-03", name: "Torwa Housing", transformerId: "T-103", lat: 22.085, lng: 82.127, count: 200 },
+  { id: "H-04", name: "NTPC Staff Quarters", transformerId: "T-105", lat: 22.354, lng: 82.678, count: 150 },
+  { id: "H-05", name: "Bhilai Sec 6 Flats", transformerId: "T-108", lat: 21.199, lng: 81.296, count: 300 },
+];
+
+const DER_ASSETS = [
+  { id: "EV-01", type: "ev", subtype: "charger", name: "EV Hub Shankar Nagar", transformerId: "T-101", maxKw: 50, lat: 21.260, lng: 81.628 },
+  { id: "EV-02", type: "ev", subtype: "charger", name: "EV Station Civil Lines", transformerId: "T-102", maxKw: 120, lat: 21.256, lng: 81.637 },
+  { id: "EV-03", type: "ev", subtype: "charger", name: "EV Charger NTPC", transformerId: "T-105", maxKw: 80, lat: 22.350, lng: 82.683 },
+  { id: "EVP-01", type: "ev", subtype: "park", name: "EV Charge Park Durg", transformerId: "T-107", maxKw: 300, lat: 21.186, lng: 81.283 },
+  { id: "SOL-01", type: "solar", subtype: "rooftop", name: "Rooftop Solar Torwa", transformerId: "T-103", maxKw: 60, lat: 22.082, lng: 82.131 },
+  { id: "SOL-02", type: "solar", subtype: "rooftop", name: "Rooftop Solar Kusmunda", transformerId: "T-106", maxKw: 100, lat: 22.348, lng: 82.691 },
+  { id: "SOL-03", type: "solar", subtype: "park", name: "Solar Park Supela", transformerId: "T-107", maxKw: 200, lat: 21.190, lng: 81.279 },
+  { id: "SOL-04", type: "solar", subtype: "rooftop", name: "Rooftop Bhilai Sec 6", transformerId: "T-108", maxKw: 45, lat: 21.196, lng: 81.292 },
+];
+
+// ─── Utility ─────────────────────────────────────────────────────────────
+const rand = (a, b) => Math.random() * (b - a) + a;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+// ─── Simulated Live Data ─────────────────────────────────────────────────
+function generateLiveData(hour) {
+  const isDaytime = hour >= 6 && hour <= 18;
+  const isPeak = (hour >= 18 && hour <= 22) || (hour >= 7 && hour <= 10);
+  const loadMult = isPeak ? rand(0.75, 0.95) : rand(0.35, 0.65);
+  const solarMult = isDaytime ? Math.sin(((hour - 6) / 12) * Math.PI) * rand(0.6, 0.95) : 0;
+
+  const feeders = FEEDERS.map(f => {
+    const loadKw = f.capacity * loadMult * rand(0.85, 1.15);
+    const inputE = loadKw * rand(1.0, 1.05);
+    const outputE = loadKw * rand(0.78, 0.96);
+    return { ...f, loadKw: Math.round(loadKw), loadPct: Math.round((loadKw / f.capacity) * 100), voltage: +(11 * rand(0.94, 1.06)).toFixed(2), current: +(loadKw / (11 * 1.732 * rand(0.85, 0.95))).toFixed(1), pf: +rand(0.82, 0.98).toFixed(2), inputEnergy: Math.round(inputE), outputEnergy: Math.round(outputE), lossPct: +((1 - outputE / inputE) * 100).toFixed(1), dataHealth: Math.random() > 0.15 ? "live" : "stale" };
+  });
+
+  const transformers = TRANSFORMERS.map(t => {
+    const tLoadMult = loadMult * rand(0.7, 1.3);
+    const loadKva = t.capacityKva * clamp(tLoadMult, 0.2, 1.15);
+    const loadPct = (loadKva / t.capacityKva) * 100;
+    const temp = 35 + loadPct * rand(0.3, 0.5);
+    let health = "healthy";
+    if (loadPct > 100) health = "critical";
+    else if (loadPct > 85) health = "warning";
+    else if (temp > 70) health = "warning";
+    return { ...t, loadKva: Math.round(loadKva), loadPct: Math.round(loadPct), voltage: +(0.415 * rand(0.92, 1.08)).toFixed(3), temperature: Math.round(temp), health, dataHealth: Math.random() > 0.1 ? "live" : "stale" };
+  });
+
+  const ders = DER_ASSETS.map(d => {
+    if (d.type === "ev") {
+      const active = Math.random() > 0.3;
+      const sessions = active ? Math.floor(rand(1, d.maxKw / 7)) : 0;
+      const powerKw = active ? Math.round(sessions * rand(5, 11)) : 0;
+      return { ...d, status: active ? "charging" : "idle", powerKw, sessions, dataHealth: Math.random() > 0.12 ? "live" : "stale" };
+    } else {
+      const gen = Math.round(d.maxKw * solarMult * rand(0.7, 1.0));
+      return { ...d, status: gen > 0 ? "generating" : "offline", powerKw: gen, irradiance: Math.round(solarMult * 1000), dataHealth: Math.random() > 0.1 ? "live" : "stale" };
+    }
+  });
+
+  const homes = HOMES.map(h => ({ ...h, demandKw: Math.round(h.count * rand(0.3, 1.2)), avgVoltage: +(230 * rand(0.92, 1.08)).toFixed(0), dataHealth: Math.random() > 0.2 ? "live" : "stale" }));
+
+  return { feeders, transformers, ders, homes, timestamp: new Date() };
+}
+
+function generateAlerts(data) {
+  const alerts = [];
+  const now = new Date();
+  data.transformers.forEach(t => {
+    if (t.loadPct > 100) alerts.push({ id: `AL-${t.id}-OL`, severity: "critical", message: `${t.name} OVERLOADED at ${t.loadPct}%`, asset: t.id, time: new Date(now - rand(0, 300000)), type: "overload" });
+    else if (t.loadPct > 85) alerts.push({ id: `AL-${t.id}-HI`, severity: "warning", message: `${t.name} high load: ${t.loadPct}%`, asset: t.id, time: new Date(now - rand(0, 600000)), type: "overload" });
+    if (t.temperature > 70) alerts.push({ id: `AL-${t.id}-TMP`, severity: "warning", message: `${t.name} temp: ${t.temperature} deg C`, asset: t.id, time: new Date(now - rand(0, 400000)), type: "thermal" });
+  });
+  data.feeders.forEach(f => {
+    if (f.voltage < 10.5 || f.voltage > 11.5) alerts.push({ id: `AL-${f.id}-V`, severity: "warning", message: `${f.name} voltage: ${f.voltage} kV`, asset: f.id, time: new Date(now - rand(0, 500000)), type: "voltage" });
+    if (f.lossPct > 18) alerts.push({ id: `AL-${f.id}-LOSS`, severity: "critical", message: `${f.name} losses at ${f.lossPct}% — possible theft zone`, asset: f.id, time: new Date(now - rand(0, 200000)), type: "theft" });
+    if (f.loadPct > 90) alerts.push({ id: `AL-${f.id}-PK`, severity: "critical", message: `${f.name} at ${f.loadPct}% capacity`, asset: f.id, time: new Date(now - rand(0, 100000)), type: "overload" });
+  });
+  const peakT = data.transformers.reduce((a, b) => a.loadPct > b.loadPct ? a : b);
+  if (peakT.loadPct > 70) alerts.push({ id: "AI-PRED-1", severity: "insight", message: `${peakT.name} predicted to overload by 7:30 PM — consider load shifting`, asset: peakT.id, time: now, type: "prediction" });
+  const highLossF = data.feeders.reduce((a, b) => a.lossPct > b.lossPct ? a : b);
+  if (highLossF.lossPct > 12) alerts.push({ id: "AI-LOSS-1", severity: "insight", message: `${highLossF.name} losses at ${highLossF.lossPct}% — investigate section 3-4 for theft`, asset: highLossF.id, time: now, type: "theft" });
+  const totalEv = data.ders.filter(d => d.type === "ev").reduce((s, d) => s + d.powerKw, 0);
+  if (totalEv > 80) alerts.push({ id: "AI-EV-1", severity: "insight", message: `EV load at ${totalEv} kW — shift ${Math.round(totalEv * 0.4)} kW to off-peak to reduce peak by ~${Math.round(totalEv * 0.4 / data.feeders[0].capacity * 100)}%`, asset: "EV", time: now, type: "ev_load" });
+  alerts.push({ id: "AI-WX-1", severity: "insight", message: `High temperature forecast (42 deg C) — transformer cooling reduced, pre-position load shedding`, asset: "WEATHER", time: now, type: "weather" });
+  return alerts.sort((a, b) => b.time - a.time);
+}
+
+// ─── Sparkline ───────────────────────────────────────────────────────────
+function Sparkline({ data, color = "#00e5a0", w = 80, h = 24 }) {
+  if (!data || data.length < 2) return null;
+  const mn = Math.min(...data), mx = Math.max(...data), r = mx - mn || 1;
+  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - mn) / r) * h}`).join(" ");
+  return <svg width={w} height={h} style={{ display: "block" }}><polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" /></svg>;
+}
+
+// ─── Mini Bar Chart ──────────────────────────────────────────────────────
+function MiniBarChart({ data, labels, color = "#007aff", w = 240, h = 90 }) {
+  const mx = Math.max(...data);
+  const bw = (w / data.length) * 0.6;
+  const gap = (w / data.length) * 0.4;
+  return (
+    <svg width={w} height={h + 20} style={{ display: "block" }}>
+      {data.map((v, i) => {
+        const bh = (v / mx) * h;
+        const x = i * (bw + gap) + gap / 2;
+        return (
+          <g key={i}>
+            <rect x={x} y={h - bh} width={bw} height={bh} rx={2} fill={v === mx ? "#ff3b5c" : color} opacity={0.85} />
+            <text x={x + bw / 2} y={h + 14} textAnchor="middle" fill="#5a6e83" fontSize="8" fontFamily="inherit">{labels?.[i] || i}</text>
+            <text x={x + bw / 2} y={h - bh - 4} textAnchor="middle" fill="#c8d6e5" fontSize="8" fontFamily="inherit">{v}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── History hook ────────────────────────────────────────────────────────
+function useHistory(items, key, maxLen = 30) {
+  const ref = useRef({});
+  useEffect(() => {
+    items.forEach(f => {
+      if (!ref.current[f.id]) ref.current[f.id] = [];
+      ref.current[f.id].push(f[key]);
+      if (ref.current[f.id].length > maxLen) ref.current[f.id].shift();
+    });
+  }, [items]);
+  return ref.current;
+}
+
+// ─── Legend Icons ────────────────────────────────────────────────────────
+const LEGEND = {
+  substation: { label: "Substation", color: "#f0f4f8" },
+  feeder: { label: "Feeder", color: "#00e5a0" },
+  transformer: { label: "Transformer", color: "#ffb800" },
+  home: { label: "Homes / Consumers", color: "#8e7cc3" },
+  ev_charger: { label: "EV Charger", color: "#007aff" },
+  ev_park: { label: "EV Charge Park", color: "#0055cc" },
+  solar: { label: "Solar Inverter", color: "#ffb800" },
+};
+
+function LegendDot({ color, size = 10 }) {
+  return <span style={{ display: "inline-block", width: size, height: size, borderRadius: size / 2, background: color, border: `1.5px solid ${color}`, flexShrink: 0 }} />;
+}
+
+// ─── Data Health Badge ───────────────────────────────────────────────────
+function DataHealthBadge({ status }) {
+  const isLive = status === "live";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 8, padding: "1px 5px", borderRadius: 3, background: isLive ? "rgba(0,229,160,0.1)" : "rgba(255,59,92,0.1)", color: isLive ? "#00e5a0" : "#ff3b5c", border: `1px solid ${isLive ? "#00e5a030" : "#ff3b5c30"}` }}>
+      <span style={{ width: 4, height: 4, borderRadius: "50%", background: isLive ? "#00e5a0" : "#ff3b5c", animation: isLive ? "pulse 2s infinite" : "none" }} />
+      {isLive ? "LIVE" : "STALE"}
+    </span>
+  );
+}
+
+// ─── Styles ──────────────────────────────────────────────────────────────
+const S = {
+  app: { fontFamily: "'JetBrains Mono', 'Fira Code', monospace", background: "#060a13", color: "#c8d6e5", minHeight: "100vh", fontSize: 13 },
+  header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", borderBottom: "1px solid #1a2235", background: "#0a0f1c" },
+  logo: { display: "flex", alignItems: "center", gap: 10 },
+  logoMark: { width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg, #00e5a0, #007aff)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14, color: "#060a13" },
+  nav: { display: "flex", gap: 1, padding: "0 20px", background: "#0a0f1c", borderBottom: "1px solid #1a2235", overflowX: "auto" },
+  navBtn: (active) => ({ padding: "9px 14px", fontSize: 10, fontWeight: active ? 700 : 500, color: active ? "#00e5a0" : "#5a6e83", background: active ? "#00e5a008" : "none", border: "none", borderBottom: active ? "2px solid #00e5a0" : "2px solid transparent", cursor: "pointer", letterSpacing: 1, textTransform: "uppercase", fontFamily: "inherit", whiteSpace: "nowrap" }),
+  main: { padding: 16 },
+  card: { background: "#0d1320", border: "1px solid #1a2235", borderRadius: 8, padding: 14, position: "relative", overflow: "hidden" },
+  glow: (c) => ({ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${c}, transparent)` }),
+  label: { fontSize: 9, color: "#5a6e83", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8, fontWeight: 600 },
+  bigNum: { fontSize: 26, fontWeight: 800, color: "#f0f4f8", lineHeight: 1 },
+  unit: { fontSize: 10, color: "#5a6e83", fontWeight: 400, marginLeft: 3 },
+  badge: (t) => {
+    const c = { healthy: "#00e5a0", warning: "#ffb800", critical: "#ff3b5c", insight: "#007aff", idle: "#3a4a5e", charging: "#007aff", generating: "#ffb800", offline: "#3a4a5e" }[t] || "#5a6e83";
+    return { display: "inline-block", fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 3, background: `${c}18`, color: c, border: `1px solid ${c}40`, textTransform: "uppercase", letterSpacing: 0.6 };
+  },
+  table: { width: "100%", borderCollapse: "collapse", fontSize: 11 },
+  th: { textAlign: "left", padding: "7px 8px", fontSize: 9, color: "#5a6e83", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid #1a2235", fontWeight: 600 },
+  td: { padding: "7px 8px", borderBottom: "1px solid #111a2b" },
+  bar: { height: 4, borderRadius: 2, background: "#1a2235", position: "relative", overflow: "hidden", width: 70, display: "inline-block", verticalAlign: "middle" },
+  barFill: (pct, c) => ({ height: "100%", borderRadius: 2, width: `${Math.min(pct, 100)}%`, background: pct > 95 ? "#ff3b5c" : pct > 80 ? "#ffb800" : c || "#00e5a0", transition: "width 0.5s" }),
+  alertRow: (sev) => {
+    const bg = { critical: "rgba(255,59,92,0.06)", warning: "rgba(255,184,0,0.06)", insight: "rgba(0,122,255,0.06)" };
+    const brd = { critical: "#ff3b5c", warning: "#ffb800", insight: "#007aff" };
+    return { display: "flex", gap: 10, alignItems: "flex-start", padding: "9px 12px", borderLeft: `3px solid ${brd[sev]}`, background: bg[sev], borderRadius: "0 5px 5px 0", marginBottom: 5 };
+  },
+};
+
+// ─── GIS MAP VIEW (SVG-based, no external tiles) ────────────────────────
+function GISView({ data }) {
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [visibleLayers, setVisibleLayers] = useState({ substation: true, feeder: true, transformer: true, home: true, ev_charger: true, ev_park: true, solar: true });
+  const [metricConfig, setMetricConfig] = useState({ voltage: true, load: true, temperature: true, losses: true, pf: false });
+  const [uploads, setUploads] = useState({});
+  const [aiProcessing, setAiProcessing] = useState(null);
+  const [aiResults, setAiResults] = useState({});
+  const fileInputRef = useRef(null);
+  const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 1000, h: 700 });
+  const [dragging, setDragging] = useState(null);
+  const svgRef = useRef(null);
+  const [hovered, setHovered] = useState(null);
+
+  // Map geo coords to SVG space
+  const allLats = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lat);
+  const allLngs = [...SUBSTATIONS, ...TRANSFORMERS, ...FEEDERS, ...HOMES, ...DER_ASSETS].map(a => a.lng);
+  const minLat = Math.min(...allLats) - 0.02, maxLat = Math.max(...allLats) + 0.02;
+  const minLng = Math.min(...allLngs) - 0.02, maxLng = Math.max(...allLngs) + 0.02;
+
+  const toSvg = (lat, lng) => ({
+    x: ((lng - minLng) / (maxLng - minLng)) * 900 + 50,
+    y: ((maxLat - lat) / (maxLat - minLat)) * 600 + 50,
+  });
+
+  // Pan
+  const onMouseDown = (e) => {
+    if (e.target.closest("[data-asset]")) return;
+    setDragging({ x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y });
+  };
+  const onMouseMove = (e) => {
+    if (!dragging) return;
+    const dx = (e.clientX - dragging.x) * (viewBox.w / svgRef.current.clientWidth);
+    const dy = (e.clientY - dragging.y) * (viewBox.h / svgRef.current.clientHeight);
+    setViewBox(v => ({ ...v, x: dragging.vx - dx, y: dragging.vy - dy }));
+  };
+  const onMouseUp = () => setDragging(null);
+  const onWheel = (e) => {
+    e.preventDefault();
+    const scale = e.deltaY > 0 ? 1.1 : 0.9;
+    setViewBox(v => {
+      const nw = v.w * scale, nh = v.h * scale;
+      return { x: v.x + (v.w - nw) / 2, y: v.y + (v.h - nh) / 2, w: nw, h: nh };
+    });
+  };
+
+  // Collect all visible assets for SVG
+  const ssPos = SUBSTATIONS.map(s => ({ ...s, ...toSvg(s.lat, s.lng), assetType: "substation", dataHealth: "live" }));
+  const fPos = data.feeders.map(f => ({ ...f, ...toSvg(f.lat, f.lng), assetType: "feeder" }));
+  const tPos = data.transformers.map(t => ({ ...t, ...toSvg(t.lat, t.lng), assetType: "transformer" }));
+  const hPos = data.homes.map(h => ({ ...h, ...toSvg(h.lat, h.lng), assetType: "home" }));
+  const evPos = data.ders.filter(d => d.type === "ev").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: d.subtype === "park" ? "ev_park" : "ev_charger" }));
+  const solPos = data.ders.filter(d => d.type === "solar").map(d => ({ ...d, ...toSvg(d.lat, d.lng), assetType: "solar" }));
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 270px", gap: 12, height: "calc(100vh - 130px)" }}>
+      <div style={{ ...S.card, padding: 0, overflow: "hidden", position: "relative" }}>
+        {/* SVG Map */}
+        <svg
+          ref={svgRef}
+          viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
+          style={{ width: "100%", height: "100%", background: "#0a0f1c", cursor: dragging ? "grabbing" : "grab" }}
+          onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
+          onWheel={onWheel}
+        >
+          {/* Grid lines */}
+          {Array.from({ length: 20 }, (_, i) => {
+            const x = i * 55;
+            return <line key={`gv${i}`} x1={x} y1={0} x2={x} y2={800} stroke="#131b2e" strokeWidth="0.5" />;
+          })}
+          {Array.from({ length: 15 }, (_, i) => {
+            const y = i * 55;
+            return <line key={`gh${i}`} x1={0} y1={y} x2={1100} y2={y} stroke="#131b2e" strokeWidth="0.5" />;
+          })}
+
+          {/* Region labels */}
+          <text x="80" y="30" fill="#1a2235" fontSize="11" fontFamily="inherit" fontWeight="600">CHHATTISGARH DISTRIBUTION NETWORK</text>
+          {fPos.map(f => (
+            <text key={`lbl-${f.id}`} x={f.x} y={f.y - 18} fill="#1e2d42" fontSize="7" fontFamily="inherit" textAnchor="middle">{f.zone}</text>
+          ))}
+
+          {/* Connection lines: SS → Feeders */}
+          {visibleLayers.feeder && ssPos.map(ss => fPos.map(f => (
+            <line key={`ln-ss-${f.id}`} x1={ss.x} y1={ss.y} x2={f.x} y2={f.y} stroke={f.color} strokeWidth="1.5" strokeDasharray="6 4" opacity="0.35" />
+          )))}
+
+          {/* Connection lines: Feeder → Transformers */}
+          {visibleLayers.transformer && tPos.map(t => {
+            const f = fPos.find(f => f.id === t.feederId);
+            return f ? <line key={`ln-f-${t.id}`} x1={f.x} y1={f.y} x2={t.x} y2={t.y} stroke={f.color} strokeWidth="1" opacity="0.2" /> : null;
+          })}
+
+          {/* Connection lines: Transformer → children */}
+          {hPos.map(h => {
+            const t = tPos.find(t => t.id === h.transformerId);
+            return t && visibleLayers.home ? <line key={`ln-t-${h.id}`} x1={t.x} y1={t.y} x2={h.x} y2={h.y} stroke="#8e7cc3" strokeWidth="0.5" opacity="0.15" /> : null;
+          })}
+          {[...evPos, ...solPos].map(d => {
+            const t = tPos.find(t => t.id === d.transformerId);
+            const show = d.assetType === "solar" ? visibleLayers.solar : visibleLayers[d.assetType];
+            return t && show ? <line key={`ln-d-${d.id}`} x1={t.x} y1={t.y} x2={d.x} y2={d.y} stroke={d.type === "ev" ? "#007aff" : "#ffb800"} strokeWidth="0.5" opacity="0.15" /> : null;
+          })}
+
+          {/* Substations */}
+          {visibleLayers.substation && ssPos.map(s => (
+            <g key={s.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(s)} onMouseEnter={() => setHovered(s.id)} onMouseLeave={() => setHovered(null)}>
+              <rect x={s.x - 16} y={s.y - 16} width={32} height={32} rx={6} fill="#f0f4f8" opacity={0.15} stroke="#f0f4f8" strokeWidth={selectedAsset?.id === s.id ? 2.5 : 1.5} />
+              {hovered === s.id && <rect x={s.x - 18} y={s.y - 18} width={36} height={36} rx={7} fill="none" stroke="#f0f4f8" strokeWidth="0.5" opacity="0.4" />}
+              <text x={s.x} y={s.y + 4} textAnchor="middle" fill="#f0f4f8" fontSize="9" fontWeight="800" fontFamily="inherit">SS</text>
+              <text x={s.x} y={s.y + 26} textAnchor="middle" fill="#5a6e83" fontSize="6" fontFamily="inherit">132kV Sub</text>
+            </g>
+          ))}
+
+          {/* Feeders */}
+          {visibleLayers.feeder && fPos.map(f => {
+            const c = f.loadPct > 90 ? "#ff3b5c" : f.loadPct > 75 ? "#ffb800" : "#00e5a0";
+            return (
+              <g key={f.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(f)} onMouseEnter={() => setHovered(f.id)} onMouseLeave={() => setHovered(null)}>
+                <circle cx={f.x} cy={f.y} r={hovered === f.id ? 16 : 14} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === f.id ? 2.5 : 1.5} />
+                {f.loadPct > 85 && <circle cx={f.x} cy={f.y} r={18} fill="none" stroke={c} strokeWidth="0.5" opacity="0.3" strokeDasharray="2 2"><animate attributeName="r" from="18" to="24" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" from="0.3" to="0" dur="2s" repeatCount="indefinite" /></circle>}
+                <text x={f.x} y={f.y + 3} textAnchor="middle" fill={c} fontSize="8" fontWeight="800" fontFamily="inherit">F</text>
+                <text x={f.x} y={f.y + 26} textAnchor="middle" fill="#5a6e83" fontSize="5.5" fontFamily="inherit">{f.name.replace("Feeder ", "")}</text>
+                <text x={f.x} y={f.y + 33} textAnchor="middle" fill={c} fontSize="5.5" fontWeight="700" fontFamily="inherit">{f.loadPct}%</text>
+              </g>
+            );
+          })}
+
+          {/* Transformers */}
+          {visibleLayers.transformer && tPos.map(t => {
+            const c = t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#ffb800";
+            return (
+              <g key={t.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(t)} onMouseEnter={() => setHovered(t.id)} onMouseLeave={() => setHovered(null)}>
+                <circle cx={t.x} cy={t.y} r={hovered === t.id ? 11 : 9} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === t.id ? 2 : 1} />
+                <text x={t.x} y={t.y + 3} textAnchor="middle" fill={c} fontSize="7" fontWeight="800" fontFamily="inherit">T</text>
+                <text x={t.x} y={t.y + 18} textAnchor="middle" fill="#3a5068" fontSize="4.5" fontFamily="inherit">{t.name.replace("DT ", "")}</text>
+              </g>
+            );
+          })}
+
+          {/* Homes */}
+          {visibleLayers.home && hPos.map(h => (
+            <g key={h.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(h)} onMouseEnter={() => setHovered(h.id)} onMouseLeave={() => setHovered(null)}>
+              <circle cx={h.x} cy={h.y} r={hovered === h.id ? 8 : 6} fill="#8e7cc320" stroke="#8e7cc3" strokeWidth={selectedAsset?.id === h.id ? 1.5 : 0.8} />
+              <text x={h.x} y={h.y + 2.5} textAnchor="middle" fill="#8e7cc3" fontSize="5.5" fontWeight="700" fontFamily="inherit">H</text>
+            </g>
+          ))}
+
+          {/* EV assets */}
+          {evPos.map(d => {
+            const show = d.assetType === "ev_park" ? visibleLayers.ev_park : visibleLayers.ev_charger;
+            if (!show) return null;
+            const c = d.status === "charging" ? "#007aff" : "#3a4a5e";
+            const r = d.subtype === "park" ? 10 : 7;
+            return (
+              <g key={d.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(d)} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+                <circle cx={d.x} cy={d.y} r={hovered === d.id ? r + 2 : r} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === d.id ? 1.5 : 0.8} />
+                <text x={d.x} y={d.y + 2.5} textAnchor="middle" fill={c} fontSize={d.subtype === "park" ? "6" : "5"} fontWeight="800" fontFamily="inherit">EV</text>
+              </g>
+            );
+          })}
+
+          {/* Solar */}
+          {visibleLayers.solar && solPos.map(d => {
+            const c = d.status === "generating" ? "#ffb800" : "#3a4a5e";
+            return (
+              <g key={d.id} data-asset="true" style={{ cursor: "pointer" }} onClick={() => setSelectedAsset(d)} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+                <circle cx={d.x} cy={d.y} r={hovered === d.id ? 9 : 7} fill={`${c}20`} stroke={c} strokeWidth={selectedAsset?.id === d.id ? 1.5 : 0.8} />
+                <text x={d.x} y={d.y + 2.5} textAnchor="middle" fill={c} fontSize="5" fontWeight="800" fontFamily="inherit">S</text>
+              </g>
+            );
+          })}
+
+          {/* Selected highlight ring */}
+          {selectedAsset && (() => {
+            const pos = [...ssPos, ...fPos, ...tPos, ...hPos, ...evPos, ...solPos].find(a => a.id === selectedAsset.id);
+            return pos ? <circle cx={pos.x} cy={pos.y} r={22} fill="none" stroke="#00e5a0" strokeWidth="1" strokeDasharray="3 3" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from={`0 ${pos.x} ${pos.y}`} to={`360 ${pos.x} ${pos.y}`} dur="8s" repeatCount="indefinite" /></circle> : null;
+          })()}
+        </svg>
+
+        {/* Legend overlay */}
+        <div style={{ position: "absolute", top: 10, left: 10, zIndex: 10, background: "#0d1320ee", borderRadius: 8, padding: 10, border: "1px solid #1a2235", maxWidth: 170 }}>
+          <div style={{ ...S.label, marginBottom: 5 }}>Asset Layers</div>
+          {Object.entries(LEGEND).map(([key, val]) => (
+            <label key={key} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, fontSize: 9, cursor: "pointer", color: visibleLayers[key] ? "#c8d6e5" : "#3a4a5e" }}>
+              <input type="checkbox" checked={visibleLayers[key]} onChange={() => setVisibleLayers(v => ({ ...v, [key]: !v[key] }))} style={{ accentColor: val.color, width: 11, height: 11 }} />
+              <LegendDot color={val.color} size={8} />
+              {val.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, overflowY: "auto" }}>
+        {/* Metrics Config Panel */}
+        <div style={S.card}>
+          <div style={S.glow("#007aff")} />
+          <div style={S.label}>Tracked Metrics</div>
+          <div style={{ fontSize: 8, color: "#3a4a5e", marginBottom: 6 }}>Select which metrics to display when inspecting assets</div>
+          {Object.entries(metricConfig).map(([key, val]) => (
+            <label key={key} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, fontSize: 10, cursor: "pointer", color: val ? "#c8d6e5" : "#3a4a5e" }}>
+              <input type="checkbox" checked={val} onChange={() => setMetricConfig(m => ({ ...m, [key]: !m[key] }))} style={{ accentColor: "#007aff", width: 11, height: 11 }} />
+              {key.charAt(0).toUpperCase() + key.slice(1)}
+            </label>
+          ))}
+        </div>
+
+        {/* Selected Asset */}
+        <div style={S.card}>
+          <div style={S.glow("#00e5a0")} />
+          <div style={S.label}>Asset Metadata</div>
+          {selectedAsset ? (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#f0f4f8" }}>{selectedAsset.name}</span>
+                <DataHealthBadge status={selectedAsset.dataHealth || "live"} />
+              </div>
+              <div style={{ fontSize: 8, color: "#5a6e83", marginBottom: 6 }}>ID: {selectedAsset.id} | Type: {selectedAsset.assetType}</div>
+              <div style={{ fontSize: 10, display: "flex", flexDirection: "column", gap: 4 }}>
+                {selectedAsset.assetType === "substation" && <>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Capacity</span><span style={{ fontWeight: 700 }}>{selectedAsset.capacityMva} MVA</span></div>
+                </>}
+                {selectedAsset.assetType === "feeder" && <>
+                  {metricConfig.load && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Load</span><span style={{ fontWeight: 700 }}>{selectedAsset.loadKw} kW ({selectedAsset.loadPct}%)</span></div>}
+                  {metricConfig.voltage && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Voltage</span><span>{selectedAsset.voltage} kV</span></div>}
+                  {metricConfig.pf && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>PF</span><span>{selectedAsset.pf}</span></div>}
+                  {metricConfig.losses && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Losses</span><span style={{ color: selectedAsset.lossPct > 15 ? "#ff3b5c" : "#ffb800", fontWeight: 700 }}>{selectedAsset.lossPct}%</span></div>}
+                </>}
+                {selectedAsset.assetType === "transformer" && <>
+                  {metricConfig.load && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Load</span><span style={{ fontWeight: 700 }}>{selectedAsset.loadKva} kVA ({selectedAsset.loadPct}%)</span></div>}
+                  {metricConfig.voltage && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Voltage</span><span>{selectedAsset.voltage} kV</span></div>}
+                  {metricConfig.temperature && <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Temp</span><span style={{ color: selectedAsset.temperature > 70 ? "#ff3b5c" : "#c8d6e5" }}>{selectedAsset.temperature} C</span></div>}
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Health</span><span style={S.badge(selectedAsset.health)}>{selectedAsset.health}</span></div>
+                </>}
+                {selectedAsset.assetType === "home" && <>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Consumers</span><span style={{ fontWeight: 700 }}>{selectedAsset.count}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Demand</span><span style={{ fontWeight: 700 }}>{selectedAsset.demandKw} kW</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Avg Voltage</span><span>{selectedAsset.avgVoltage} V</span></div>
+                </>}
+                {(selectedAsset.assetType === "ev_charger" || selectedAsset.assetType === "ev_park") && <>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Power</span><span style={{ color: "#007aff", fontWeight: 700 }}>{selectedAsset.powerKw} kW</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Status</span><span style={S.badge(selectedAsset.status)}>{selectedAsset.status}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Sessions</span><span>{selectedAsset.sessions || 0}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Capacity</span><span>{selectedAsset.maxKw} kW</span></div>
+                </>}
+                {selectedAsset.assetType === "solar" && <>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Generation</span><span style={{ color: "#ffb800", fontWeight: 700 }}>{selectedAsset.powerKw} kW</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Status</span><span style={S.badge(selectedAsset.status)}>{selectedAsset.status}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>Capacity</span><span>{selectedAsset.maxKw} kW</span></div>
+                </>}
+              </div>
+              <div style={{ marginTop: 6, padding: "4px 6px", background: "#111a2b", borderRadius: 3, fontSize: 8, color: "#5a6e83" }}>
+                Coords: {selectedAsset.lat?.toFixed(4)}, {selectedAsset.lng?.toFixed(4)}
+              </div>
+
+              {/* ── Upload & AI Extraction ── */}
+              <div style={{ marginTop: 10, borderTop: "1px solid #1a2235", paddingTop: 8 }}>
+                <div style={{ ...S.label, marginBottom: 6 }}>Documents & AI Extract</div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.docx"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length || !selectedAsset) return;
+                    const assetId = selectedAsset.id;
+                    const newFiles = files.map(f => ({
+                      name: f.name,
+                      size: (f.size / 1024).toFixed(1) + " KB",
+                      type: f.name.split(".").pop().toUpperCase(),
+                      uploadedAt: new Date().toLocaleTimeString(),
+                    }));
+                    setUploads(prev => ({ ...prev, [assetId]: [...(prev[assetId] || []), ...newFiles] }));
+                    // Simulate AI processing
+                    setAiProcessing(assetId);
+                    setTimeout(() => {
+                      const fakeExtracted = {};
+                      files.forEach(f => {
+                        const ext = f.name.split(".").pop().toLowerCase();
+                        if (ext === "pdf" || ext === "docx") {
+                          fakeExtracted[f.name] = [
+                            { field: "Make", value: "Crompton Greaves", confidence: 94 },
+                            { field: "Rating", value: selectedAsset.capacityKva ? `${selectedAsset.capacityKva} kVA` : selectedAsset.capacity ? `${selectedAsset.capacity} kW` : "250 kVA", confidence: 97 },
+                            { field: "Year of Install", value: "2019", confidence: 88 },
+                            { field: "Oil Type", value: "Mineral Oil", confidence: 91 },
+                            { field: "Serial No.", value: "CG-" + Math.random().toString(36).substr(2, 8).toUpperCase(), confidence: 96 },
+                            { field: "Last Maintenance", value: "14-Nov-2025", confidence: 82 },
+                          ];
+                        } else {
+                          fakeExtracted[f.name] = [
+                            { field: "Nameplate Detected", value: "Yes", confidence: 95 },
+                            { field: "Make (OCR)", value: "Crompton Greaves", confidence: 87 },
+                            { field: "Rating (OCR)", value: selectedAsset.capacityKva ? `${selectedAsset.capacityKva} kVA` : "250 kVA", confidence: 83 },
+                            { field: "Condition", value: "Rust on enclosure, oil level normal", confidence: 76 },
+                            { field: "Serial No. (OCR)", value: "CG-" + Math.random().toString(36).substr(2, 8).toUpperCase(), confidence: 79 },
+                          ];
+                        }
+                      });
+                      setAiResults(prev => ({ ...prev, [assetId]: { ...prev[assetId], ...fakeExtracted } }));
+                      setAiProcessing(null);
+                    }, 2500);
+                    e.target.value = "";
+                  }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ width: "100%", padding: "7px 0", background: "rgba(0,122,255,0.1)", border: "1px solid #007aff30", borderRadius: 4, color: "#007aff", fontSize: 9, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4" stroke="#007aff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#007aff" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  UPLOAD (PDF, JPG, PNG, DOCX)
+                </button>
+
+                {/* Uploaded files list */}
+                {(uploads[selectedAsset.id] || []).length > 0 && (
+                  <div style={{ marginTop: 6 }}>
+                    {uploads[selectedAsset.id].map((f, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 6px", background: "#111a2b", borderRadius: 3, marginBottom: 3, fontSize: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ background: f.type === "PDF" ? "#ff3b5c20" : f.type === "DOCX" ? "#007aff20" : "#ffb80020", color: f.type === "PDF" ? "#ff3b5c" : f.type === "DOCX" ? "#007aff" : "#ffb800", padding: "1px 4px", borderRadius: 2, fontWeight: 700, fontSize: 7 }}>{f.type}</span>
+                          <span style={{ color: "#c8d6e5" }}>{f.name.length > 18 ? f.name.slice(0, 18) + "..." : f.name}</span>
+                        </div>
+                        <span style={{ color: "#3a5068" }}>{f.size}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* AI Processing indicator */}
+                {aiProcessing === selectedAsset.id && (
+                  <div style={{ marginTop: 6, padding: "8px", background: "rgba(0,122,255,0.06)", border: "1px solid #007aff20", borderRadius: 4, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#007aff", fontWeight: 600, marginBottom: 4 }}>AI Processing...</div>
+                    <div style={{ fontSize: 8, color: "#5a6e83" }}>Running OCR & LLM extraction</div>
+                    <div style={{ marginTop: 4, height: 3, background: "#1a2235", borderRadius: 2, overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#007aff", borderRadius: 2, width: "60%", animation: "pulse 1s infinite" }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Extracted Results */}
+                {aiResults[selectedAsset.id] && Object.entries(aiResults[selectedAsset.id]).map(([fileName, fields]) => (
+                  <div key={fileName} style={{ marginTop: 6, border: "1px solid #007aff20", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ padding: "4px 6px", background: "rgba(0,122,255,0.08)", fontSize: 8, fontWeight: 600, color: "#007aff", display: "flex", alignItems: "center", gap: 4 }}>
+                      <span>🧠</span> AI Extracted — {fileName.length > 20 ? fileName.slice(0, 20) + "..." : fileName}
+                    </div>
+                    {fields.map((f, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 6px", borderBottom: "1px solid #111a2b", fontSize: 9 }}>
+                        <span style={{ color: "#5a6e83" }}>{f.field}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ color: "#f0f4f8", fontWeight: 600 }}>{f.value}</span>
+                          <span style={{ fontSize: 7, padding: "1px 3px", borderRadius: 2, background: f.confidence > 90 ? "#00e5a015" : f.confidence > 80 ? "#ffb80015" : "#ff3b5c15", color: f.confidence > 90 ? "#00e5a0" : f.confidence > 80 ? "#ffb800" : "#ff3b5c" }}>{f.confidence}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontSize: 10, color: "#3a4a5e", padding: "16px 0", textAlign: "center" }}>Click any asset on the map</div>
+          )}
+        </div>
+
+        {/* Network Stats */}
+        <div style={S.card}>
+          <div style={S.glow("#ffb800")} />
+          <div style={S.label}>Asset Count</div>
+          <div style={{ fontSize: 10, display: "flex", flexDirection: "column", gap: 4 }}>
+            {[
+              ["Substations", SUBSTATIONS.length, "#f0f4f8"],
+              ["Feeders", FEEDERS.length, "#00e5a0"],
+              ["Transformers", TRANSFORMERS.length, "#ffb800"],
+              ["Consumer Clusters", HOMES.length, "#8e7cc3"],
+              ["EV Points", DER_ASSETS.filter(d => d.type === "ev").length, "#007aff"],
+              ["Solar Assets", DER_ASSETS.filter(d => d.type === "solar").length, "#ffb800"],
+            ].map(([l, v, c]) => (
+              <div key={l} style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#5a6e83" }}>{l}</span><span style={{ fontWeight: 700, color: c }}>{v}</span></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── NETWORK OVERVIEW ────────────────────────────────────────────────────
+function NetworkOverview({ data }) {
+  const totalLoad = data.feeders.reduce((s, f) => s + f.loadKw, 0);
+  const totalCap = data.feeders.reduce((s, f) => s + f.capacity, 0);
+  const avgLoss = +(data.feeders.reduce((s, f) => s + f.lossPct, 0) / data.feeders.length).toFixed(1);
+  const totalSolar = data.ders.filter(d => d.type === "solar").reduce((s, d) => s + d.powerKw, 0);
+  const totalEv = data.ders.filter(d => d.type === "ev").reduce((s, d) => s + d.powerKw, 0);
+
+  return (
+    <div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 14 }}>
+        {[
+          { label: "Total Load", value: totalLoad, unit: "kW", color: "#00e5a0" },
+          { label: "Utilization", value: Math.round(totalLoad / totalCap * 100), unit: "%", color: totalLoad / totalCap > 0.85 ? "#ff3b5c" : "#00e5a0" },
+          { label: "Avg Loss", value: avgLoss, unit: "%", color: avgLoss > 15 ? "#ff3b5c" : "#ffb800" },
+          { label: "Solar", value: totalSolar, unit: "kW", color: "#ffb800" },
+          { label: "EV Load", value: totalEv, unit: "kW", color: "#007aff" },
+        ].map((k, i) => (
+          <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={S.bigNum}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
+        ))}
+      </div>
+      <div style={S.card}>
+        <div style={S.glow("#00e5a0")} />
+        <div style={S.label}>Single Line Diagram</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "14px 0" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ width: 44, height: 44, borderRadius: 8, border: "2px solid #f0f4f8", background: "#f0f4f810", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800, fontSize: 11, color: "#f0f4f8" }}>SUB</div>
+            <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 2 }}>33/11 kV</div>
+          </div>
+          <div style={{ width: 2, height: 10, background: "#1a2235" }} />
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+            {data.feeders.map(f => {
+              const c = { healthy: "#00e5a0", warning: "#ffb800", critical: "#ff3b5c" }[f.loadPct > 90 ? "critical" : f.loadPct > 75 ? "warning" : "healthy"];
+              const trs = data.transformers.filter(t => t.feederId === f.id);
+              return (
+                <div key={f.id} style={{ textAlign: "center" }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${c}`, background: `${c}15`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 10, fontWeight: 700, color: c }}>{f.loadPct}%</div>
+                  <div style={{ fontSize: 7, color: "#5a6e83", marginTop: 2, maxWidth: 72 }}>{f.name.replace("Feeder ", "")}</div>
+                  <div style={{ width: 1, height: 8, background: "#1a2235", margin: "3px auto" }} />
+                  <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                    {trs.map(t => {
+                      const tc = { healthy: "#00e5a0", warning: "#ffb800", critical: "#ff3b5c" }[t.health];
+                      return (
+                        <div key={t.id} style={{ textAlign: "center" }}>
+                          <div style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${tc}`, background: `${tc}15`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontSize: 7, fontWeight: 700, color: tc }}>{t.loadPct}%</div>
+                          <div style={{ fontSize: 6, color: "#5a6e83", marginTop: 1, maxWidth: 50 }}>{t.name.replace("DT ", "")}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div style={{ ...S.card, marginTop: 12 }}>
+        <div style={S.glow("#ff3b5c")} />
+        <div style={S.label}>AT&C Loss Monitor</div>
+        <table style={S.table}>
+          <thead><tr><th style={S.th}>Feeder</th><th style={S.th}>Input</th><th style={S.th}>Metered</th><th style={S.th}>Loss</th><th style={S.th}>Flag</th></tr></thead>
+          <tbody>
+            {data.feeders.map(f => (
+              <tr key={f.id}>
+                <td style={{ ...S.td, fontWeight: 600, color: "#f0f4f8" }}>{f.name}</td>
+                <td style={S.td}>{f.inputEnergy} kW</td>
+                <td style={S.td}>{f.outputEnergy} kW</td>
+                <td style={{ ...S.td, color: f.lossPct > 18 ? "#ff3b5c" : f.lossPct > 12 ? "#ffb800" : "#00e5a0", fontWeight: 700 }}>{f.lossPct}%</td>
+                <td style={S.td}><span style={S.badge(f.lossPct > 18 ? "critical" : f.lossPct > 12 ? "warning" : "healthy")}>{f.lossPct > 18 ? "Theft?" : f.lossPct > 12 ? "High" : "Normal"}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── REAL-TIME MONITORING ────────────────────────────────────────────────
+function Monitoring({ data, feederHistory }) {
+  return (
+    <div>
+      <div style={S.card}>
+        <div style={S.glow("#00e5a0")} />
+        <div style={S.label}>Feeder Parameters</div>
+        <table style={S.table}>
+          <thead><tr><th style={S.th}>Feeder</th><th style={S.th}>V (kV)</th><th style={S.th}>I (A)</th><th style={S.th}>Load</th><th style={S.th}>Loading</th><th style={S.th}>PF</th><th style={S.th}>Loss</th><th style={S.th}>Data</th><th style={S.th}>Trend</th></tr></thead>
+          <tbody>
+            {data.feeders.map(f => (
+              <tr key={f.id}>
+                <td style={{ ...S.td, fontWeight: 600, color: "#f0f4f8" }}>{f.name}</td>
+                <td style={{ ...S.td, color: (f.voltage < 10.5 || f.voltage > 11.5) ? "#ff3b5c" : "#c8d6e5" }}>{f.voltage}</td>
+                <td style={S.td}>{f.current}</td>
+                <td style={{ ...S.td, fontWeight: 700 }}>{f.loadKw} kW</td>
+                <td style={S.td}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={S.bar}><div style={S.barFill(f.loadPct)} /></div>
+                    <span style={{ fontWeight: 600, fontSize: 10, color: f.loadPct > 90 ? "#ff3b5c" : f.loadPct > 75 ? "#ffb800" : "#00e5a0" }}>{f.loadPct}%</span>
+                  </div>
+                </td>
+                <td style={{ ...S.td, color: f.pf < 0.85 ? "#ffb800" : "#c8d6e5" }}>{f.pf}</td>
+                <td style={{ ...S.td, color: f.lossPct > 18 ? "#ff3b5c" : f.lossPct > 12 ? "#ffb800" : "#00e5a0", fontWeight: 600 }}>{f.lossPct}%</td>
+                <td style={S.td}><DataHealthBadge status={f.dataHealth} /></td>
+                <td style={S.td}><Sparkline data={feederHistory[f.id]} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ ...S.label, marginTop: 14, marginBottom: 8, paddingLeft: 4 }}>Transformer Grid</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        {data.transformers.map(t => (
+          <div key={t.id} style={S.card}>
+            <div style={S.glow(t.health === "critical" ? "#ff3b5c" : t.health === "warning" ? "#ffb800" : "#00e5a0")} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#f0f4f8" }}>{t.id}</span>
+              <div style={{ display: "flex", gap: 3, alignItems: "center" }}><DataHealthBadge status={t.dataHealth} /><span style={S.badge(t.health)}>{t.health}</span></div>
+            </div>
+            <div style={{ fontSize: 8, color: "#5a6e83", marginBottom: 5 }}>{t.name}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, fontSize: 10 }}>
+              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>Load </span><span style={{ fontWeight: 700 }}>{t.loadKva} kVA</span></div>
+              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>% </span><span style={{ fontWeight: 700, color: t.loadPct > 95 ? "#ff3b5c" : t.loadPct > 80 ? "#ffb800" : "#00e5a0" }}>{t.loadPct}%</span></div>
+              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>V </span><span>{t.voltage}</span></div>
+              <div><span style={{ fontSize: 8, color: "#5a6e83" }}>Temp </span><span style={{ color: t.temperature > 70 ? "#ff3b5c" : "#c8d6e5" }}>{t.temperature}C</span></div>
+            </div>
+            <div style={{ marginTop: 5 }}><div style={S.bar}><div style={S.barFill(t.loadPct)} /></div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── ALERTS ──────────────────────────────────────────────────────────────
+function AlertsView({ alerts }) {
+  const [filter, setFilter] = useState("all");
+  const filtered = filter === "all" ? alerts : alerts.filter(a => a.severity === filter);
+  const counts = { critical: alerts.filter(a => a.severity === "critical").length, warning: alerts.filter(a => a.severity === "warning").length, insight: alerts.filter(a => a.severity === "insight").length };
+
+  return (
+    <div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 14 }}>
+        {[
+          { key: "all", label: "Total", count: alerts.length, color: "#c8d6e5" },
+          { key: "critical", label: "Critical", count: counts.critical, color: "#ff3b5c" },
+          { key: "warning", label: "Warnings", count: counts.warning, color: "#ffb800" },
+          { key: "insight", label: "AI Insights", count: counts.insight, color: "#007aff" },
+        ].map(k => (
+          <div key={k.key} style={{ ...S.card, cursor: "pointer", border: filter === k.key ? `1px solid ${k.color}40` : "1px solid #1a2235" }} onClick={() => setFilter(k.key)}>
+            <div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={{ ...S.bigNum, color: k.color }}>{k.count}</div>
+          </div>
+        ))}
+      </div>
+      <div style={S.card}>
+        <div style={S.glow("#ff3b5c")} />
+        <div style={S.label}>Alert Feed — {filter.toUpperCase()}</div>
+        <div style={{ maxHeight: 440, overflowY: "auto" }}>
+          {filtered.map(a => (
+            <div key={a.id} style={S.alertRow(a.severity)}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: { critical: "#ff3b5c", warning: "#ffb800", insight: "#007aff" }[a.severity], marginTop: 4, flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, color: "#f0f4f8", fontWeight: a.severity === "insight" ? 600 : 500 }}>
+                  {a.severity === "insight" && <span style={{ color: "#007aff", marginRight: 4, fontSize: 9 }}>AI</span>}
+                  {a.type === "theft" && <span style={{ color: "#ff3b5c", marginRight: 4, fontSize: 9 }}>THEFT</span>}
+                  {a.type === "ev_load" && <span style={{ color: "#007aff", marginRight: 4, fontSize: 9 }}>EV</span>}
+                  {a.type === "weather" && <span style={{ color: "#ffb800", marginRight: 4, fontSize: 9 }}>WX</span>}
+                  {a.message}
+                </div>
+                <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 2 }}>{a.asset} | {a.time.toLocaleTimeString()}</div>
+              </div>
+              {a.severity !== "insight" && <button style={{ background: "rgba(255,255,255,0.04)", border: "1px solid #1a2235", borderRadius: 3, color: "#5a6e83", fontSize: 8, padding: "3px 7px", cursor: "pointer", fontFamily: "inherit" }}>ACK</button>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PREDICTIVE MODELLING ────────────────────────────────────────────────
+function PredictiveView({ data }) {
+  const hours = ["6PM", "7PM", "8PM", "9PM", "10PM", "11PM"];
+  const evForecast = [45, 120, 180, 210, 160, 80];
+  const loadForecast = [450, 620, 740, 780, 710, 520];
+  const solarForecast = [80, 30, 5, 0, 0, 0];
+  const tempForecast = [38, 36, 34, 33, 32, 31];
+  const peakT = data.transformers.reduce((a, b) => a.loadPct > b.loadPct ? a : b);
+
+  return (
+    <div>
+      <div style={{ ...S.card, borderColor: "#ffb80040", marginBottom: 12 }}>
+        <div style={S.glow("#ffb800")} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ fontSize: 24 }}>🌡️</div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#ffb800" }}>Weather Alert: Extreme Heat Advisory</div>
+            <div style={{ fontSize: 9, color: "#c8d6e5", marginTop: 2 }}>Forecast 42C peak. Transformer cooling reduced ~15%. Pre-position load shedding.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={S.card}>
+          <div style={S.glow("#007aff")} /><div style={S.label}>EV Load Forecast</div>
+          <MiniBarChart data={evForecast} labels={hours} color="#007aff" />
+          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+            AI: Shift 85 kW from 9 PM peak to post-11 PM. Reduces transformer stress ~18%.
+          </div>
+        </div>
+        <div style={S.card}>
+          <div style={S.glow("#00e5a0")} /><div style={S.label}>Total Load Forecast</div>
+          <MiniBarChart data={loadForecast} labels={hours} color="#00e5a0" />
+          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+            AI: Peak 780 kW at 9 PM. {peakT.name} at risk. Consider switching.
+          </div>
+        </div>
+        <div style={S.card}>
+          <div style={S.glow("#ffb800")} /><div style={S.label}>Solar Generation Forecast</div>
+          <MiniBarChart data={solarForecast} labels={hours} color="#ffb800" />
+          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+            AI: Solar drops at 7 PM. Net demand spikes. Battery/DG recommended.
+          </div>
+        </div>
+        <div style={S.card}>
+          <div style={S.glow("#ff3b5c")} /><div style={S.label}>Temperature vs Transformer Risk</div>
+          <MiniBarChart data={tempForecast} labels={hours} color="#ff3b5c" />
+          <div style={{ marginTop: 8, fontSize: 9, color: "#5a6e83", padding: "5px 7px", background: "#111a2b", borderRadius: 3 }}>
+            AI: 3 transformers at thermal risk 6-8 PM when ambient exceeds 36C.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ ...S.card, marginTop: 12 }}>
+        <div style={S.glow("#ff3b5c")} />
+        <div style={S.label}>Transformer Overload Risk — Next 6h</div>
+        <table style={S.table}>
+          <thead><tr><th style={S.th}>Transformer</th><th style={S.th}>Now</th><th style={S.th}>Predicted</th><th style={S.th}>Risk</th><th style={S.th}>Action</th></tr></thead>
+          <tbody>
+            {data.transformers.sort((a, b) => b.loadPct - a.loadPct).slice(0, 5).map(t => {
+              const pred = Math.round(t.loadPct * rand(1.05, 1.35));
+              const risk = pred > 100 ? "critical" : pred > 85 ? "warning" : "healthy";
+              return (
+                <tr key={t.id}>
+                  <td style={{ ...S.td, fontWeight: 600, color: "#f0f4f8" }}>{t.name}</td>
+                  <td style={S.td}>{t.loadPct}%</td>
+                  <td style={{ ...S.td, fontWeight: 700, color: risk === "critical" ? "#ff3b5c" : risk === "warning" ? "#ffb800" : "#00e5a0" }}>{pred}%</td>
+                  <td style={S.td}><span style={S.badge(risk)}>{risk}</span></td>
+                  <td style={S.td}>{risk !== "healthy" && <button style={{ background: "rgba(0,122,255,0.1)", border: "1px solid #007aff30", borderRadius: 3, color: "#007aff", fontSize: 8, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>SHIFT LOAD</button>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={{ ...S.card, marginTop: 12 }}>
+        <div style={S.glow("#007aff")} />
+        <div style={S.label}>Historical EV Pattern (7-Day Avg)</div>
+        <div style={{ display: "flex", gap: 2, alignItems: "flex-end", height: 70, padding: "8px 0" }}>
+          {Array.from({ length: 24 }, (_, h) => {
+            const v = h < 6 ? rand(5, 20) : h < 10 ? rand(30, 80) : h < 16 ? rand(20, 50) : h < 22 ? rand(80, 200) : rand(40, 90);
+            return (
+              <div key={h} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                <div style={{ width: "75%", height: `${(v / 200) * 60}px`, background: v > 150 ? "#ff3b5c" : v > 80 ? "#007aff" : "#007aff50", borderRadius: "2px 2px 0 0" }} />
+                {h % 6 === 0 && <span style={{ fontSize: 7, color: "#5a6e83" }}>{h}h</span>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 8, color: "#5a6e83", marginTop: 3 }}>Red = peak hours. Target for demand response programs.</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── DER MANAGEMENT ──────────────────────────────────────────────────────
+function DERView({ data }) {
+  const evAssets = data.ders.filter(d => d.type === "ev");
+  const solarAssets = data.ders.filter(d => d.type === "solar");
+  const totalEv = evAssets.reduce((s, d) => s + d.powerKw, 0);
+  const totalSolar = solarAssets.reduce((s, d) => s + d.powerKw, 0);
+  const totalLoad = data.feeders.reduce((s, f) => s + f.loadKw, 0);
+  const netLoad = totalLoad - totalSolar;
+
+  return (
+    <div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 12 }}>
+        {[
+          { label: "EV Load", value: totalEv, unit: "kW", color: "#007aff" },
+          { label: "Solar Gen", value: totalSolar, unit: "kW", color: "#ffb800" },
+          { label: "Net Demand", value: Math.round(netLoad), unit: "kW", color: "#00e5a0" },
+          { label: "Solar %", value: totalLoad > 0 ? ((totalSolar / totalLoad) * 100).toFixed(1) : 0, unit: "%", color: "#ffb800" },
+        ].map((k, i) => (
+          <div key={i} style={S.card}><div style={S.glow(k.color)} /><div style={S.label}>{k.label}</div><div style={S.bigNum}><span style={{ color: k.color }}>{k.value}</span><span style={S.unit}>{k.unit}</span></div></div>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={S.card}>
+          <div style={S.glow("#007aff")} /><div style={S.label}>EV Assets</div>
+          {evAssets.map(d => (
+            <div key={d.id} style={{ padding: "7px 0", borderBottom: "1px solid #111a2b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: "#f0f4f8" }}>{d.name}</div>
+                <div style={{ fontSize: 8, color: "#5a6e83" }}>{d.subtype} | {d.powerKw} kW | {d.sessions || 0} sessions</div>
+              </div>
+              <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                <DataHealthBadge status={d.dataHealth} />
+                <span style={S.badge(d.status)}>{d.status}</span>
+                <button style={{ background: d.status === "charging" ? "rgba(255,59,92,0.1)" : "rgba(0,229,160,0.1)", border: `1px solid ${d.status === "charging" ? "#ff3b5c30" : "#00e5a030"}`, borderRadius: 3, color: d.status === "charging" ? "#ff3b5c" : "#00e5a0", fontSize: 8, padding: "2px 6px", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{d.status === "charging" ? "CURTAIL" : "ENABLE"}</button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={S.card}>
+          <div style={S.glow("#ffb800")} /><div style={S.label}>Solar Assets</div>
+          {solarAssets.map(d => (
+            <div key={d.id} style={{ padding: "7px 0", borderBottom: "1px solid #111a2b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: "#f0f4f8" }}>{d.name}</div>
+                <div style={{ fontSize: 8, color: "#5a6e83" }}>{d.subtype} | {d.powerKw}/{d.maxKw} kW</div>
+              </div>
+              <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                <DataHealthBadge status={d.dataHealth} />
+                <span style={S.badge(d.status)}>{d.status}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ ...S.card, marginTop: 12 }}>
+        <div style={S.glow("#00e5a0")} /><div style={S.label}>Energy Balance</div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, padding: "14px 0" }}>
+          {[
+            { l: "Grid Load", v: totalLoad, c: "#f0f4f8" }, { l: "minus" },
+            { l: "Solar", v: totalSolar, c: "#ffb800" }, { l: "plus" },
+            { l: "EV", v: totalEv, c: "#007aff" }, { l: "equals" },
+            { l: "Net", v: Math.round(netLoad), c: "#00e5a0" },
+          ].map((k, i) => k.v !== undefined ? (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 8, color: "#5a6e83" }}>{k.l}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: k.c }}>{k.v}<span style={{ fontSize: 9, color: "#5a6e83" }}> kW</span></div>
+            </div>
+          ) : (
+            <div key={i} style={{ fontSize: 16, color: "#3a5068" }}>{k.l === "minus" ? "−" : k.l === "plus" ? "+" : "="}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────
+function SankhyaGridApp() {
+  const [tab, setTab] = useState("gis");
+  const [data, setData] = useState(() => generateLiveData(new Date().getHours()));
+  const [alerts, setAlerts] = useState([]);
+  const feederHistory = useHistory(data.feeders, "loadPct");
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const d = generateLiveData(new Date().getHours());
+      setData(d);
+      setAlerts(generateAlerts(d));
+    }, 5000);
+    setAlerts(generateAlerts(data));
+    return () => clearInterval(iv);
+  }, []);
+
+  const critCount = alerts.filter(a => a.severity === "critical").length;
+  const tabs = [
+    { key: "gis", label: "GIS View" },
+    { key: "network", label: "Network Overview" },
+    { key: "monitoring", label: "Real-Time" },
+    { key: "alerts", label: `Alerts (${critCount})` },
+    { key: "predictive", label: "Predictive" },
+    { key: "der", label: "DER" },
+  ];
+
+  return (
+    <div style={S.app}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+        * { box-sizing:border-box; margin:0; padding:0 }
+        ::-webkit-scrollbar { width:5px }
+        ::-webkit-scrollbar-track { background:#0a0f1c }
+        ::-webkit-scrollbar-thumb { background:#1a2235; border-radius:3px }
+        button:hover { filter:brightness(1.2) }
+        tr:hover td { background:rgba(0,229,160,0.03) }
+      `}</style>
+      <header style={S.header}>
+        <div style={S.logo}>
+          <div style={{ width: 34, height: 34, borderRadius: 8, background: "linear-gradient(135deg, #ff9933 0%, #00e5a0 50%, #138808 100%)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", boxShadow: "0 0 12px rgba(0,229,160,0.3)" }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: "#060a13", fontFamily: "serif", lineHeight: 1, marginTop: -1 }}>सां</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: 1.5, color: "#f0f4f8" }}>SANKHYAGRID<span style={{ fontSize: 11, color: "#5a6e83", fontWeight: 400, marginLeft: 6 }}>सांख्य</span></div>
+            <div style={{ fontSize: 8, color: "#5a6e83", letterSpacing: 2, textTransform: "uppercase" }}>Distribution Intelligence Platform</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#00e5a0", background: "rgba(0,229,160,0.08)", padding: "3px 9px", borderRadius: 14, border: "1px solid rgba(0,229,160,0.2)" }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#00e5a0", animation: "pulse 2s infinite" }} />LIVE
+          </div>
+          <div style={{ fontSize: 10, color: "#5a6e83" }}>{data.timestamp.toLocaleTimeString()}</div>
+        </div>
+      </header>
+      <nav style={S.nav}>
+        {tabs.map(t => <button key={t.key} style={S.navBtn(tab === t.key)} onClick={() => setTab(t.key)}>{t.label}</button>)}
+      </nav>
+      <main style={S.main}>
+        {tab === "gis" && <GISView data={data} />}
+        {tab === "network" && <NetworkOverview data={data} />}
+        {tab === "monitoring" && <Monitoring data={data} feederHistory={feederHistory} />}
+        {tab === "alerts" && <AlertsView alerts={alerts} />}
+        {tab === "predictive" && <PredictiveView data={data} />}
+        {tab === "der" && <DERView data={data} />}
+      </main>
+      <footer style={{ padding: "8px 20px", borderTop: "1px solid #1a2235", display: "flex", justifyContent: "center", fontSize: 9, color: "#3a5068" }}>
+        <span>with ❤️ made in India</span>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(SankhyaGridApp));
+</script>
+</body>
+</html>

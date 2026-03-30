@@ -527,7 +527,7 @@ function GISView({ data, mob }) {
         <div style={{ position: "absolute", top: 10, left: 10, zIndex: 1000, background: `${S.t.bgCard}ee`, borderRadius: 8, padding: 10, border: `1px solid ${S.t.border}`, maxWidth: 170 }}>
           <div style={{ ...S.label, marginBottom: 5 }}>Asset Layers</div>
           {Object.entries(LEGEND).map(([key, val]) => (
-            <label key={key} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, fontSize: 9, cursor: "pointer", color: visibleLayers[key] ? "#c8d6e5" : "#3a4a5e" }}>
+            <label key={key} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, fontSize: 9, cursor: "pointer", color: visibleLayers[key] ? S.t.text : S.t.textFaint }}>
               <input type="checkbox" checked={visibleLayers[key]} onChange={() => setVisibleLayers(v => ({ ...v, [key]: !v[key] }))} style={{ accentColor: val.color, width: 11, height: 11 }} />
               <LegendDot color={val.color} size={8} />
               {val.label}

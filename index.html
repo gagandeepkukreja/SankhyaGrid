@@ -407,6 +407,27 @@ function makeStyles(t) {
 
 let S = makeStyles(THEMES.light);
 
+// ─── Transmission Lines (from CSPTCL Grid Map, approximate real corridors) ──
+const TRANSMISSION_LINES = [
+  // 400kV lines (thick cyan)
+  { voltage: 400, points: [[22.15,82.25],[21.95,82.00],[21.75,81.85],[21.50,81.72],[21.28,81.65]] },
+  { voltage: 400, points: [[22.35,82.69],[22.30,82.55],[22.25,82.40],[22.15,82.25],[22.08,82.14]] },
+  { voltage: 400, points: [[21.28,81.65],[21.24,81.55],[21.20,81.42],[21.19,81.29]] },
+  // 220kV lines (medium orange)
+  { voltage: 220, points: [[22.35,82.69],[22.34,82.60],[22.33,82.52],[22.30,82.45]] },
+  { voltage: 220, points: [[22.08,82.14],[22.05,82.05],[22.00,81.95],[21.95,81.85]] },
+  { voltage: 220, points: [[21.28,81.65],[21.29,81.62],[21.30,81.64],[21.31,81.67]] },
+  { voltage: 220, points: [[21.28,81.65],[21.25,81.55],[21.22,81.45],[21.19,81.35],[21.19,81.29]] },
+  { voltage: 220, points: [[21.19,81.29],[21.17,81.20],[21.14,81.12],[21.10,81.03]] },
+  { voltage: 220, points: [[22.08,82.14],[22.12,82.25],[22.18,82.38],[22.25,82.50],[22.30,82.60],[22.35,82.69]] },
+  // 132kV lines (thin)
+  { voltage: 132, points: [[21.28,81.65],[21.27,81.62],[21.26,81.60],[21.29,81.61]] },
+  { voltage: 132, points: [[21.19,81.29],[21.19,81.27],[21.18,81.28],[21.20,81.30]] },
+  { voltage: 132, points: [[22.35,82.69],[22.36,82.66],[22.35,82.65]] },
+  { voltage: 132, points: [[22.08,82.14],[22.09,82.12],[22.10,82.11]] },
+  { voltage: 132, points: [[21.19,81.29],[21.18,81.30],[21.17,81.31]] },
+];
+
 // ─── GIS MAP VIEW (SVG-based, no external tiles) ────────────────────────
 function GISView({ data, mob }) {
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -456,6 +477,20 @@ function GISView({ data, mob }) {
     const mkIcon = (color, size, txt) => L.divIcon({
       className: "", iconSize: [size, size], iconAnchor: [size / 2, size / 2],
       html: `<div style="width:${size}px;height:${size}px;border-radius:${size/2}px;background:${color};border:2px solid ${color};box-shadow:0 0 10px ${color}50;display:flex;align-items:center;justify-content:center;font-size:${Math.max(size*0.38,8)}px;color:#060a13;font-weight:800;font-family:monospace;cursor:pointer">${txt}</div>`,
+    });
+
+    // Transmission lines (from CSPTCL grid map)
+    TRANSMISSION_LINES.forEach(line => {
+      const color = line.voltage >= 400 ? "#0ea5e9" : line.voltage >= 220 ? "#f59e0b" : "#6b8f71";
+      const weight = line.voltage >= 400 ? 3 : line.voltage >= 220 ? 2.2 : 1.5;
+      const ln = L.polyline(line.points, { color, weight, opacity: 0.7 }).addTo(map);
+      // Add voltage label at midpoint
+      const mid = line.points[Math.floor(line.points.length / 2)];
+      const label = L.marker(mid, { icon: L.divIcon({
+        className: "", iconSize: [60, 16], iconAnchor: [30, 8],
+        html: `<div style="font-size:9px;font-weight:700;color:${color};font-family:DM Sans,sans-serif;text-shadow:0 0 4px rgba(255,255,255,0.9),0 0 2px rgba(255,255,255,1);white-space:nowrap;text-align:center">${line.voltage} kV</div>`,
+      })}).addTo(map);
+      markersRef.current.push(ln, label);
     });
 
     // Substations

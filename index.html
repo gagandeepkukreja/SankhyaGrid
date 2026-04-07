@@ -1410,6 +1410,202 @@ function AssetAnalytics({ asset, onBack, mob }) {
   );
 }
 
+// ─── SCADA SINGLE LINE DIAGRAM ───────────────────────────────────────────
+function SCADAView({ data, mob }) {
+  const t = S.t;
+  const [openSections, setOpenSections] = useState({ feeders: true, transformers: true, homes: false, industry: false, ev: false, solar: false });
+  const toggle = (k) => setOpenSections(s => ({ ...s, [k]: !s[k] }));
+
+  const totalEvLoad = data.ders.filter(d => d.type === "ev").reduce((s, d) => s + d.powerKw, 0);
+  const totalSolarGen = data.ders.filter(d => d.type === "solar").reduce((s, d) => s + d.powerKw, 0);
+  const totalHomeLoad = data.homes.reduce((s, h) => s + h.demandKw, 0);
+  const totalIndLoad = data.industries.reduce((s, ind) => s + ind.demandKw, 0);
+  const totalLoad = data.feeders.reduce((s, f) => s + f.loadKw, 0);
+  const avgLoss = +(data.feeders.reduce((s, f) => s + f.lossPct, 0) / data.feeders.length).toFixed(1);
+  const freq = +(50 * (0.998 + Math.random() * 0.004)).toFixed(2);
+  const pf = +(0.92 + Math.random() * 0.06).toFixed(2);
+  const ssTemp = Math.round(35 + (totalLoad / 80000) * 30);
+
+  // Collapsible section
+  const Section = ({ id, title, icon, color, count, children }) => (
+    <div style={{ marginBottom: 4 }}>
+      <div onClick={() => toggle(id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 10px", background: `${color}10`, border: `1px solid ${color}20`, borderRadius: 5, cursor: "pointer", userSelect: "none" }}>
+        <span style={{ fontSize: 10, color, transform: openSections[id] ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s", display: "inline-block" }}>▶</span>
+        <span style={{ fontSize: 9, color, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>{icon} {title}</span>
+        <span style={{ fontSize: 8, color: t.textDim, marginLeft: "auto" }}>{count} assets</span>
+        <span style={{ fontSize: 7, color: t.textDim, padding: "1px 6px", background: t.bgInner, borderRadius: 3, border: `1px solid ${t.border}` }}>{openSections[id] ? "COLLAPSE" : "EXPAND"}</span>
+      </div>
+      {openSections[id] && <div style={{ borderLeft: `2px solid ${color}25`, marginLeft: 14, paddingLeft: 10, paddingTop: 8, paddingBottom: 4 }}>{children}</div>}
+    </div>
+  );
+
+  // Asset card
+  const Card = ({ name, color, alert, badges, rows, barPct, barColor }) => (
+    <div style={{ background: t.bgCard, border: `1px solid ${alert ? `${t.red}40` : t.border}`, borderRadius: 5, padding: "7px 9px", borderLeft: `3px solid ${color}`, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: t.textBright }}>{name}</span>
+        <div style={{ display: "flex", gap: 3 }}>{(badges||[]).map((b,i) => <span key={i} style={{ fontSize: 7, padding: "1px 5px", borderRadius: 3, background: `${b.c}15`, color: b.c, border: `1px solid ${b.c}30`, fontWeight: 700 }}>{b.t}</span>)}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px 8px" }}>
+        {(rows||[]).map((r,i) => <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 9 }}><span style={{ color: t.textDim }}>{r.l}</span><span style={{ color: r.c || t.text, fontWeight: r.b ? 700 : 400 }}>{r.v}</span></div>)}
+      </div>
+      {barPct !== undefined && <div style={{ marginTop: 4, height: 3, background: t.barBg, borderRadius: 2, overflow: "hidden" }}><div style={{ height: "100%", width: `${Math.min(barPct, 100)}%`, background: barColor || t.green, borderRadius: 2 }} /></div>}
+    </div>
+  );
+
+  return (
+    <div>
+      {/* KPI Strip */}
+      <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(8, 1fr)", gap: 6, marginBottom: 12 }}>
+        {[
+          { l: "220kV Bus", v: (220 * (0.97 + Math.random() * 0.06)).toFixed(1), u: "kV", c: "#0ea5e9" },
+          { l: "Total Load", v: Math.round(totalLoad / 1000), u: "MW", c: t.blue },
+          { l: "Frequency", v: freq, u: "Hz", c: t.green, w: freq < 49.9 },
+          { l: "Power Factor", v: pf, u: "", c: pf < 0.9 ? t.yellow : t.green },
+          { l: "Home Load", v: totalHomeLoad, u: "kW", c: t.purple },
+          { l: "Industry", v: Math.round(totalIndLoad / 1000), u: "MW", c: t.red },
+          { l: "EV Load", v: totalEvLoad, u: "kW", c: "#007aff" },
+          { l: "Solar Gen", v: totalSolarGen, u: "kW", c: "#d4a843" },
+        ].map((k,i) => (
+          <div key={i} style={{ ...S.card, padding: "6px 8px" }}>
+            <div style={S.glow(k.c)} />
+            <div style={{ fontSize: 7, color: t.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3, paddingLeft: 6 }}>{k.l}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: k.c, paddingLeft: 6 }}>{k.v}<span style={{ fontSize: 8, color: t.textDim, fontWeight: 400 }}> {k.u}</span></div>
+          </div>
+        ))}
+      </div>
+
+      {/* SVG Bus Diagram */}
+      <div style={{ ...S.card, padding: 8, marginBottom: 10, overflowX: "auto" }}>
+        <div style={S.glow("#0ea5e9")} />
+        <svg width={mob ? 600 : 900} viewBox="0 0 900 210" style={{ display: "block", width: "100%" }}>
+          {/* 220kV incoming */}
+          <line x1={380} y1={10} x2={380} y2={50} stroke="#0ea5e9" strokeWidth={2} />
+          <line x1={520} y1={10} x2={520} y2={50} stroke="#0ea5e9" strokeWidth={2} />
+          <rect x={374} y={22} width={12} height={12} rx={2} fill="rgba(42,125,140,0.2)" stroke={t.green} strokeWidth={1} />
+          <rect x={514} y={22} width={12} height={12} rx={2} fill="rgba(42,125,140,0.2)" stroke={t.green} strokeWidth={1} />
+          <text x={365} y={14} fill="#0ea5e9" fontSize={8} fontFamily="inherit">Line 1</text>
+          <text x={508} y={14} fill="#0ea5e9" fontSize={8} fontFamily="inherit">Line 2</text>
+
+          {/* 220kV Bus */}
+          <line x1={40} y1={50} x2={860} y2={50} stroke="#0ea5e9" strokeWidth={3} />
+          <text x={10} y={54} fill="#0ea5e9" fontSize={9} fontWeight={700} fontFamily="inherit">220kV</text>
+          <circle cx={450} cy={50} r={3} fill="#0ea5e9"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" /></circle>
+
+          {/* Power transformer */}
+          <line x1={450} y1={50} x2={450} y2={70} stroke="#0ea5e9" strokeWidth={1.5} />
+          <circle cx={450} cy={80} r={8} fill="none" stroke="#0ea5e9" strokeWidth={1.2} />
+          <circle cx={450} cy={94} r={8} fill="none" stroke="#f59e0b" strokeWidth={1.2} />
+          <line x1={450} y1={102} x2={450} y2={140} stroke="#f59e0b" strokeWidth={1.5} />
+          <text x={465} y={85} fill={t.textDim} fontSize={7} fontFamily="inherit">220/33kV</text>
+          <text x={465} y={97} fill={ssTemp > 55 ? t.red : t.textDim} fontSize={7} fontFamily="inherit">{ssTemp}°C</text>
+
+          {/* 33kV Bus */}
+          <line x1={40} y1={140} x2={860} y2={140} stroke="#f59e0b" strokeWidth={3} />
+          <text x={10} y={144} fill="#f59e0b" fontSize={9} fontWeight={700} fontFamily="inherit">33kV</text>
+          <circle cx={450} cy={140} r={3} fill="#f59e0b"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" /></circle>
+
+          {/* Feeder taps */}
+          {data.feeders.filter(f => f.substationId === "SS-RPR").concat(data.feeders.filter(f => f.substationId !== "SS-RPR").slice(0,4)).slice(0,8).map((f,i,arr) => {
+            const spacing = 860 / (arr.length + 1);
+            const x = spacing * (i + 1);
+            const isTrip = f.loadPct > 95 && Math.random() > 0.9;
+            const lossHigh = f.lossPct > 15;
+            return (
+              <g key={f.id}>
+                <line x1={x} y1={140} x2={x} y2={165} stroke={isTrip ? t.textMuted : "#f59e0b"} strokeWidth={1.5} strokeDasharray={isTrip ? "3 3" : "none"} />
+                <rect x={x-5} y={148} width={10} height={10} rx={2} fill={isTrip ? `${t.red}30` : `${t.green}20`} stroke={isTrip ? t.red : t.green} strokeWidth={1} />
+                <text x={x} y={180} fill={t.textBright} fontSize={8} fontWeight={700} fontFamily="inherit" textAnchor="middle">{f.name.replace("33/11kV ","")}</text>
+                <text x={x} y={192} fill={t.textDim} fontSize={7} fontFamily="inherit" textAnchor="middle">{f.voltage}kV | {f.loadKw}kW</text>
+                {lossHigh && <text x={x} y={204} fill={t.red} fontSize={7} fontWeight={700} fontFamily="inherit" textAnchor="middle">⚠ {f.lossPct}% loss</text>}
+                <line x1={x} y1={165} x2={x} y2={210} stroke={isTrip ? t.textMuted : "#a78bfa"} strokeWidth={0.6} strokeDasharray="2 4" opacity={0.3} />
+              </g>
+            );
+          })}
+
+          {/* Legend */}
+          <g transform="translate(740,8)">
+            <rect x={0} y={0} width={150} height={36} rx={3} fill={`${t.bgCard}dd`} stroke={t.border} strokeWidth={0.5} />
+            {[{c:"#0ea5e9",l:"220 kV",w:2.5},{c:"#f59e0b",l:"33 kV",w:2},{c:"#a78bfa",l:"11 kV",w:1.5}].map((v,i) => (
+              <g key={i}><line x1={6} y1={11+i*10} x2={22} y2={11+i*10} stroke={v.c} strokeWidth={v.w} /><text x={28} y={14+i*10} fill={t.text} fontSize={7} fontFamily="inherit">{v.l}</text></g>
+            ))}
+            <rect x={90} y={5} width={8} height={8} rx={1} fill={`${t.green}20`} stroke={t.green} strokeWidth={1} /><text x={102} y={12} fill={t.text} fontSize={7} fontFamily="inherit">CB</text>
+          </g>
+        </svg>
+      </div>
+
+      {/* Collapsible Layers */}
+      <Section id="feeders" title="33/11kV Feeders" icon="⚡" color="#f59e0b" count={data.feeders.length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(3, 1fr)", gap: 6 }}>
+          {data.feeders.map(f => {
+            const lp = Math.round((f.loadKw / f.capacity) * 100);
+            return <Card key={f.id} name={`${f.name} (${f.mva} MVA)`} color="#f59e0b" alert={f.lossPct > 15}
+              badges={[{t: lp > 90 ? "HIGH" : "OK", c: lp > 90 ? t.red : t.green}, ...(f.lossPct > 15 ? [{t:`${f.lossPct}% LOSS`,c:t.red}] : [])]}
+              rows={[{l:"Voltage",v:`${f.voltage} kV`},{l:"Current",v:`${f.current} A`},{l:"Load",v:`${f.loadKw} kW`,c:lp>85?t.red:t.blue,b:true},{l:"PF",v:f.pf,c:f.pf<0.88?t.yellow:t.text}]}
+              barPct={lp} barColor={lp>90?t.red:lp>75?t.yellow:t.green} />;
+          })}
+        </div>
+      </Section>
+
+      <Section id="transformers" title="Distribution Transformers (11kV / 0.415kV)" icon="🔌" color="#a78bfa" count={data.transformers.length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: 5 }}>
+          {data.transformers.map(dt => (
+            <Card key={dt.id} name={dt.name} color="#a78bfa" alert={dt.loadPct > 90 || dt.temperature > 65}
+              badges={[{t:`${dt.loadPct}%`,c:dt.loadPct>95?t.red:dt.loadPct>80?t.yellow:t.green}, ...(dt.temperature>65?[{t:`${dt.temperature}°C`,c:t.red}]:[])]}
+              rows={[{l:"Rating",v:`${dt.capacityKva} kVA`},{l:"Load",v:`${dt.loadKva} kVA`,b:true,c:dt.loadPct>90?t.red:t.text},{l:"LV",v:`${dt.voltage} kV`},{l:"Temp",v:`${dt.temperature}°C`,c:dt.temperature>65?t.red:t.text}]}
+              barPct={dt.loadPct} barColor={dt.loadPct>95?t.red:dt.loadPct>80?t.yellow:"#a78bfa"} />
+          ))}
+        </div>
+      </Section>
+
+      <Section id="homes" title="Homes / Domestic Consumers" icon="🏠" color={t.purple} count={data.homes.length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 5 }}>
+          {data.homes.map(h => (
+            <Card key={h.id} name={h.name} color={t.purple}
+              badges={[{t:`${h.count} HH`,c:t.purple}]}
+              rows={[{l:"Demand",v:`${h.demandKw} kW`,b:true},{l:"Per HH",v:`${(h.demandKw/h.count).toFixed(1)} kW`},{l:"Avg V",v:`${h.avgVoltage} V`},{l:"DT",v:h.transformerId}]} />
+          ))}
+        </div>
+      </Section>
+
+      <Section id="industry" title="Industries / IPP" icon="🏭" color={t.red} count={data.industries.length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(2, 1fr)", gap: 5 }}>
+          {data.industries.map(ind => (
+            <Card key={ind.id} name={ind.name} color={t.red}
+              badges={[{t:ind.type.toUpperCase(),c:t.red}, ...(ind.solarGen>0?[{t:`☀ ${ind.solarGen} kW`,c:"#d4a843"}]:[])]}
+              rows={[{l:"Contract",v:`${ind.contractDemand} kW`},{l:"Actual",v:`${ind.demandKw} kW`,b:true},{l:"Solar",v:`${ind.solarGen} kW`,c:"#d4a843"},{l:"Net Grid",v:`${ind.netDemand} kW`},{l:"PF",v:ind.pf},{l:"Load %",v:`${ind.loadPct}%`}]}
+              barPct={ind.loadPct} barColor={t.red} />
+          ))}
+        </div>
+      </Section>
+
+      <Section id="ev" title="EV Chargers / Charge Parks" icon="🔋" color="#007aff" count={data.ders.filter(d=>d.type==="ev").length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(3, 1fr)", gap: 5 }}>
+          {data.ders.filter(d=>d.type==="ev").map(ev => {
+            const active = ev.status === "charging";
+            return <Card key={ev.id} name={ev.name} color="#007aff"
+              badges={[{t:active?"CHARGING":"IDLE",c:active?"#007aff":t.textMuted},{t:`${ev.sessions||0} sess`,c:t.textDim}]}
+              rows={[{l:"Power",v:`${ev.powerKw} kW`,b:true,c:"#007aff"},{l:"Capacity",v:`${ev.maxKw} kW`},{l:"Util",v:`${ev.maxKw>0?Math.round(ev.powerKw/ev.maxKw*100):0}%`},{l:"DT",v:ev.transformerId}]}
+              barPct={ev.maxKw>0?Math.round(ev.powerKw/ev.maxKw*100):0} barColor="#007aff" />;
+          })}
+        </div>
+      </Section>
+
+      <Section id="solar" title="Solar Generation (KUSUM + Rooftop)" icon="☀️" color="#d4a843" count={data.ders.filter(d=>d.type==="solar").length}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(3, 1fr)", gap: 5 }}>
+          {data.ders.filter(d=>d.type==="solar").map(sol => {
+            const active = sol.status === "generating";
+            return <Card key={sol.id} name={sol.name} color="#d4a843"
+              badges={[{t:active?"GENERATING":"OFFLINE",c:active?"#d4a843":t.textMuted},{t:sol.maxKw>=1000?"PARK":"ROOFTOP",c:sol.maxKw>=1000?"#d4a843":t.textDim}]}
+              rows={[{l:"Gen",v:`${sol.powerKw} kW`,b:true,c:"#d4a843"},{l:"Capacity",v:`${sol.maxKw} kW`},{l:"CUF",v:`${sol.maxKw>0?Math.round(sol.powerKw/sol.maxKw*100):0}%`},{l:"DT",v:sol.transformerId}]}
+              barPct={sol.maxKw>0?Math.round(sol.powerKw/sol.maxKw*100):0} barColor="#d4a843" />;
+          })}
+        </div>
+      </Section>
+    </div>
+  );
+}
+
 // ─── MARKETPLACE ─────────────────────────────────────────────────────────
 function Marketplace({ mob }) {
   const [filterTag, setFilterTag] = useState("all");
@@ -1649,6 +1845,7 @@ function SankhyaGridApp() {
   const tabs = [
     { key: "gis", label: L.gis },
     { key: "network", label: L.network },
+    { key: "scada", label: "SCADA SLD" },
     { key: "monitoring", label: L.realtime },
     { key: "alerts", label: `${L.alerts} (${critCount})` },
     { key: "predictive", label: L.predictive },
@@ -1747,6 +1944,7 @@ function SankhyaGridApp() {
       <main style={{ padding: mob ? 8 : 16 }}>
         {tab === "gis" && <GISView data={data} mob={mob} />}
         {tab === "network" && <NetworkOverview data={data} mob={mob} />}
+        {tab === "scada" && <SCADAView data={data} mob={mob} />}
         {tab === "monitoring" && <Monitoring data={data} feederHistory={feederHistory} mob={mob} />}
         {tab === "alerts" && <AlertsView alerts={alerts} mob={mob} />}
         {tab === "predictive" && <PredictiveView data={data} mob={mob} />}
